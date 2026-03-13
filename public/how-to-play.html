@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Margana - How to Play</title>
+    <meta name="description"
+          content="Margana is a tactical word game. Complete the grid, release letters to find the longest anagram and compete in the daily leaderboard">
+    <link rel="canonical" href="https://www.margana.co.uk/how-to-play.html">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/Margana_logo_48x48.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/Margana_logo_48x48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Margana_logo_180x180.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Margana - How to Play">
+    <meta property="og:description" content="Learn how to play Margana, the tactical word game. Complete the grid, find the longest anagrams, and top the leaderboards.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.margana.co.uk/how-to-play.html">
+    <meta property="og:image" content="https://www.margana.co.uk/Margana_logo_1200x630.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Margana - How to Play">
+    <meta name="twitter:description" content="Learn how to play Margana, the tactical word game. Complete the grid and find the longest anagrams.">
+    <meta name="twitter:image" content="https://www.margana.co.uk/Margana_logo_1200x630.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-from: #111827;
+            --bg-via: #581c87;
+            --bg-to: #312e81;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: rgba(255, 255, 255, 0.9);
+            --text-subtle: #c7d2fe;
+            --dot-from: #a855f7;
+            --dot-to: #f97316;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, var(--bg-from), var(--bg-via), var(--bg-to));
+            background-attachment: fixed;
+            font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+            color: white;
+        }
+
+        p.subtle {
+            text-align: center;
+            color: rgba(224, 231, 255, 0.8);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card h2 {
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card h2::before {
+            content: "";
+            display: inline-block;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: linear-gradient(to top right, var(--dot-from), var(--dot-to));
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: .9rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            font-weight: 600;
+            margin-left: 1.25rem;
+        }
+
+        .card p.subtle {
+            text-align: left;
+            font-size: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 0;
+            opacity: 0.7;
+            margin-left: 1.25rem;
+        }
+
+        p {
+            line-height: 1.6;
+            color: rgba(224, 231, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .card > p {
+            margin-left: 1.25rem;
+        }
+
+        .separator {
+            height: 1px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin: 1.5rem 0;
+        }
+
+        .logo-top {
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo-top img {
+            width: 192px;
+            height: 192px;
+        }
+
+        @media (max-width: 640px) {
+            .logo-top img {
+                width: 120px;
+                height: 120px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            p.subtle {
+                margin-bottom: 2rem;
+            }
+
+            .card {
+                padding: 0.5rem;
+            }
+
+            .wrap {
+                padding: 1rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="logo-top">
+        <img src="/Margana_logo_48x48.svg" alt="Margana Logo">
+    </div>
+    <h1>How to play</h1>
+    <p class="subtle">Play the once a day challenge and complete the word grid, release letters in the anagram, build the daily anagram, and compete on leaderboards</p>
+
+    <div class="card">
+        <h2>Make 5 horizontal words first</h2>
+        <p>Build 5 valid horizontal words to start. Invalid words shake and turn red &ndash; tweak and try again</p>
+        <p>If you are struggling, type * and the word will be completed with blank tiles, allowing you to submit
+            the game, but not score points</p>
+
+        <div class="separator"></div>
+        <h2>Use clever words</h2>
+        <p>Palindromes (same word forward and backward) and semordnilaps (a different word backward) score double</p>
+
+        <div class="separator"></div>
+        <h2>Hunt horizontal words for extra points</h2>
+        <p>After you submit, the game finds any other valid words in the grid that run edge-to-edge in any direction
+            (horizontal, vertical, diagonal, forwards, backwards). Set these up while making your 5 words to boost
+            your score</p>
+
+        <div class="separator"></div>
+        <h2>Beat Margana and top the leaderboards</h2>
+        <p>You can join multiple leaderboards (friends, family&hellip;)</p>
+        <p>Play once, compete everywhere &ndash; your daily score posts to every leaderboard you are in</p>
+        <p>Weekly Medals: fight for Gold each week; early leads can be hunted down</p>
+        <p><strong>Tip:</strong> Margana does not score bonus points for the daily anagram or Margana madness &ndash;
+                use that edge</p>
+
+        <div class="separator"></div>
+        <h2>Chase big bonuses</h2>
+        <h3>Daily anagram</h3>
+        <p>Unlock letters as you play and build the daily anagram for a big bonus. If you use all the letters for the anagram
+        you will earn +20 points. You can submit shorter anagrams, but you will not receive the bonus points</p>
+        <p><strong>Tip:</strong> Release the letters in the anagram by using them in the grid - the anagram word is
+                worth an extra 20 points if you use get the longest anagram. Any valid word with any length
+                will also be accepted</p>
+
+        <h3>Margana madness day</h3>
+        <p>Create 8 touching letters spelling 'Margana' to earn those letter points and +30 points bonus. Look out for this random day each week</p>
+        <p><strong>Tip:</strong>Margana will let you know when the Margana madness day has arrived</p>
+
+        <div class="separator"></div>
+        <h2>Palindromes</h2>
+        <p>A word that reads the same forward and backward (e.g., kayak ↔ kayak). These score double</p>
+
+        <div class="separator"></div>
+        <h2>Semordnilaps</h2>
+        <p>Two valid words formed in opposite directions (e.g., keels ↔ sleek). Double points!</p>
+
+        <div class="separator"></div>
+        <h2>Diagonal</h2>
+        <p>Words can run diagonally and vertically as well. They score the same as horizontal words</p>
+        <p><strong>Tip:</strong> Scan diagonally and vertically last &ndash; these words often appear after you have
+                completed other words. A little fine tuning could score you more points. These also include palindromes
+                and semordnilaps (e.g., dam ↔ mad)</p>
+    </div>
+</div>
+</body>
+</html>

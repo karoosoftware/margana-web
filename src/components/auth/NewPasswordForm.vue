@@ -1,0 +1,134 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+const props = defineProps<{
+  requiredAttrs: string[]
+  loading?: boolean
+  error?: string
+}>()
+
+const emit = defineEmits<{
+  (e: 'submit', data: any): void
+  (e: 'back'): void
+}>()
+
+const newPassword = ref('')
+const givenName = ref('')
+const familyName = ref('')
+const showPwd = ref(false)
+
+const newPasswordInput = ref<HTMLInputElement | null>(null)
+
+onMounted(() => {
+  newPasswordInput.value?.focus()
+})
+
+function handleSubmit() {
+  emit('submit', {
+    newPassword: newPassword.value,
+    givenName: givenName.value,
+    familyName: familyName.value
+  })
+}
+</script>
+
+<template>
+  <div class="space-y-4">
+    <div class="text-center mt-4 mb-3">
+      <p class="text-indigo-100/90 font-bold">New password required</p>
+    </div>
+
+    <form @submit.prevent="handleSubmit" class="space-y-4">
+      <div class="relative">
+        <label class="block text-sm font-medium mb-1 text-indigo-100" for="new-password">New password</label>
+        <input
+          id="new-password"
+          ref="newPasswordInput"
+          v-model="newPassword"
+          :type="showPwd ? 'text' : 'password'"
+          class="form-input"
+          autocomplete="new-password"
+          placeholder="Enter a new password"
+          minlength="8"
+          required
+          autofocus
+        />
+        <div class="absolute inset-y-0 right-3 flex items-center">
+          <button
+            type="button"
+            class="inline-flex h-5 w-5 items-center justify-center
+               text-slate-300 hover:text-white
+               bg-transparent border-0 outline-none
+               focus:outline-none focus:ring-0 focus-visible:outline-none
+               translate-y-[10px]
+               [-webkit-tap-highlight-color:transparent]"
+            @click="showPwd = !showPwd"
+            :aria-label="showPwd ? 'Hide password' : 'Show password'"
+            :aria-pressed="showPwd ? 'true' : 'false'"
+          >
+            <svg v-if="!showPwd" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 3l18 18M10.6 10.6A3.5 3.5 0 0012 15.5M7.4 7.9C4.9 9.3 3.4 11.6 3.1 12c0 0 3.4 7 8.9 7 2 0 3.7-.6 5.2-1.6M15.5 8.4A6.6 6.6 0 0012 8c-6.5 0-9.9 7-9.9 7 .2.3 1.1 1.9 2.9 3.4"/>
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M2.1 12S5.5 5 12 5s9.9 7 9.9 7-3.4 7-9.9 7S2.1 12 2.1 12Z"/>
+              <circle cx="12" cy="12" r="3.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div v-if="requiredAttrs.includes('given_name')">
+        <label class="block text-sm font-medium mb-1 text-indigo-100" for="given-name">First name</label>
+        <input
+          id="given-name"
+          v-model.trim="givenName"
+          type="text"
+          class="form-input"
+          autocomplete="given-name"
+          placeholder="Your first name"
+          required
+        />
+      </div>
+
+      <div v-if="requiredAttrs.includes('family_name')">
+        <label class="block text-sm font-medium mb-1 text-indigo-100" for="family-name">Last name</label>
+        <input
+          id="family-name"
+          v-model.trim="familyName"
+          type="text"
+          class="form-input"
+          autocomplete="family-name"
+          placeholder="Your last name"
+          required
+        />
+      </div>
+
+      <p v-if="error" class="text-sm text-rose-300 bg-rose-900/40 border border-rose-700/40 rounded-lg px-3 py-2 animate-shake">
+        {{ error }}
+      </p>
+
+      <div class="flex gap-2">
+        <div v-if="loading" class="flex-1 flex items-center justify-center">
+          <span class="dots-loader" role="img" aria-label="Updating">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </span>
+        </div>
+        <button
+          v-else
+          type="submit"
+          class="btn-account-management flex-1"
+          :disabled="loading"
+        >
+          Update
+        </button>
+        <button type="button" @click="emit('back')" class="btn-navigation">
+          Back
+        </button>
+      </div>
+    </form>
+  </div>
+</template>

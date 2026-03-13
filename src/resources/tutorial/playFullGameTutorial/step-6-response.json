@@ -1,0 +1,415 @@
+{
+  "meta": {
+    "date": "2026-02-25",
+    "guest_id": "g_3f6p1dubln2ucr0ekan6e",
+    "rows": 5,
+    "cols": 5,
+    "wordLength": 5,
+    "columnIndex": 3,
+    "diagonalDirection": "main",
+    "verticalTargetWord": "sites",
+    "diagonalTargetWord": "aides",
+    "madnessAvailable": false,
+    "longestAnagramCount": 10,
+    "userAnagram": "DIVIDES",
+    "skippedRows": [],
+    "guestId": "g_3f6p1dubln2ucr0ekan6e",
+    "madnessFound": false
+  },
+  "valid_words_metadata": [
+    {
+      "word": "awash",
+      "type": "row",
+      "index": 0,
+      "direction": "lr",
+      "start_index": {
+        "r": 0,
+        "c": 0
+      },
+      "end_index": {
+        "r": 0,
+        "c": 4
+      },
+      "palindrome": false,
+      "semordnilap": false,
+      "letters": [
+        "a",
+        "w",
+        "a",
+        "s",
+        "h"
+      ],
+      "letter_scores": [
+        3,
+        8,
+        3,
+        2,
+        6
+      ],
+      "letter_value": {
+        "w": 8,
+        "h": 6,
+        "a": 3,
+        "s": 2
+      },
+      "letter_sum": 22,
+      "base_score": 22,
+      "bonus": 0,
+      "score": 22
+    },
+    {
+      "word": "civic",
+      "type": "row",
+      "index": 1,
+      "direction": "lr",
+      "start_index": {
+        "r": 1,
+        "c": 0
+      },
+      "end_index": {
+        "r": 1,
+        "c": 4
+      },
+      "palindrome": true,
+      "semordnilap": false,
+      "letters": [
+        "c",
+        "i",
+        "v",
+        "i",
+        "c"
+      ],
+      "letter_scores": [
+        4,
+        2,
+        8,
+        2,
+        4
+      ],
+      "letter_value": {
+        "i": 2,
+        "v": 8,
+        "c": 4
+      },
+      "letter_sum": 20,
+      "base_score": 40,
+      "bonus": 0,
+      "score": 40
+    },
+    {
+      "word": "width",
+      "type": "row",
+      "index": 2,
+      "direction": "lr",
+      "start_index": {
+        "r": 2,
+        "c": 0
+      },
+      "end_index": {
+        "r": 2,
+        "c": 4
+      },
+      "palindrome": false,
+      "semordnilap": false,
+      "letters": [
+        "w",
+        "i",
+        "d",
+        "t",
+        "h"
+      ],
+      "letter_scores": [
+        8,
+        2,
+        4,
+        3,
+        6
+      ],
+      "letter_value": {
+        "w": 8,
+        "h": 6,
+        "t": 3,
+        "i": 2,
+        "d": 4
+      },
+      "letter_sum": 23,
+      "base_score": 23,
+      "bonus": 0,
+      "score": 23
+    },
+    {
+      "word": "tubed",
+      "type": "row",
+      "index": 3,
+      "direction": "lr",
+      "start_index": {
+        "r": 3,
+        "c": 0
+      },
+      "end_index": {
+        "r": 3,
+        "c": 4
+      },
+      "palindrome": false,
+      "semordnilap": true,
+      "letters": [
+        "t",
+        "u",
+        "b",
+        "e",
+        "d"
+      ],
+      "letter_scores": [
+        3,
+        5,
+        7,
+        2,
+        4
+      ],
+      "letter_value": {
+        "b": 7,
+        "t": 3,
+        "e": 2,
+        "u": 5,
+        "d": 4
+      },
+      "letter_sum": 21,
+      "base_score": 21,
+      "bonus": 0,
+      "score": 21
+    },
+    {
+      "word": "abyss",
+      "type": "row",
+      "index": 4,
+      "direction": "lr",
+      "start_index": {
+        "r": 4,
+        "c": 0
+      },
+      "end_index": {
+        "r": 4,
+        "c": 4
+      },
+      "palindrome": false,
+      "semordnilap": false,
+      "letters": [
+        "a",
+        "b",
+        "y",
+        "s",
+        "s"
+      ],
+      "letter_scores": [
+        3,
+        7,
+        7,
+        2,
+        2
+      ],
+      "letter_value": {
+        "y": 7,
+        "b": 7,
+        "a": 3,
+        "s": 2
+      },
+      "letter_sum": 21,
+      "base_score": 21,
+      "bonus": 0,
+      "score": 21
+    },
+    {
+      "word": "debut",
+      "type": "row",
+      "index": 3,
+      "direction": "rl",
+      "start_index": {
+        "r": 3,
+        "c": 4
+      },
+      "end_index": {
+        "r": 3,
+        "c": 0
+      },
+      "palindrome": false,
+      "semordnilap": true,
+      "letters": [
+        "d",
+        "e",
+        "b",
+        "u",
+        "t"
+      ],
+      "letter_scores": [
+        4,
+        2,
+        7,
+        5,
+        3
+      ],
+      "letter_value": {
+        "b": 7,
+        "t": 3,
+        "e": 2,
+        "u": 5,
+        "d": 4
+      },
+      "letter_sum": 21,
+      "base_score": 21,
+      "bonus": 0,
+      "score": 21
+    },
+    {
+      "word": "hey",
+      "type": "diagonal",
+      "index": 0,
+      "direction": "anti",
+      "start_index": {
+        "r": 2,
+        "c": 4
+      },
+      "end_index": {
+        "r": 4,
+        "c": 2
+      },
+      "palindrome": false,
+      "semordnilap": false,
+      "letters": [
+        "h",
+        "e",
+        "y"
+      ],
+      "letter_scores": [
+        6,
+        2,
+        7
+      ],
+      "letter_value": {
+        "e": 2,
+        "y": 7,
+        "h": 6
+      },
+      "letter_sum": 15,
+      "base_score": 15,
+      "bonus": 0,
+      "score": 15
+    },
+    {
+      "word": "divides",
+      "type": "anagram",
+      "index": 0,
+      "direction": "builder",
+      "start_index": null,
+      "end_index": null,
+      "palindrome": false,
+      "semordnilap": false,
+      "letters": [
+        "d",
+        "i",
+        "v",
+        "i",
+        "d",
+        "e",
+        "s"
+      ],
+      "letter_scores": [
+        4,
+        2,
+        8,
+        2,
+        4,
+        2,
+        2
+      ],
+      "letter_value": {
+        "s": 2,
+        "e": 2,
+        "v": 8,
+        "i": 2,
+        "d": 4
+      },
+      "letter_sum": 24,
+      "base_score": 24,
+      "bonus": 0,
+      "score": 24
+    }
+  ],
+  "total_score": 187,
+  "skippedRows": [],
+  "row_summaries": [
+    {
+      "row": 0,
+      "skipped": false,
+      "word": "awash",
+      "valid": true,
+      "score": 22
+    },
+    {
+      "row": 1,
+      "skipped": false,
+      "word": "civic",
+      "valid": true,
+      "score": 20
+    },
+    {
+      "row": 2,
+      "skipped": false,
+      "word": "width",
+      "valid": true,
+      "score": 23
+    },
+    {
+      "row": 3,
+      "skipped": false,
+      "word": "tubed",
+      "valid": true,
+      "score": 21
+    },
+    {
+      "row": 4,
+      "skipped": false,
+      "word": "abyss",
+      "valid": true,
+      "score": 21
+    }
+  ],
+  "invoice": null,
+  "saved": {
+    "bucket": null,
+    "key": null,
+    "uploaded": false
+  },
+  "valid_words": {
+    "rows": {
+      "lr": [
+        "awash",
+        "civic",
+        "width",
+        "tubed",
+        "abyss"
+      ],
+      "rl": [
+        "debut"
+      ]
+    },
+    "columns": {
+      "tb": [],
+      "bt": []
+    },
+    "diagonals": {
+      "main": [],
+      "main_rev": [],
+      "anti": [
+        "hey"
+      ],
+      "anti_rev": []
+    },
+    "anagram": [
+      "divides"
+    ]
+  },
+  "anagram_result": {
+    "submitted": "divides",
+    "accepted": true
+  }
+}

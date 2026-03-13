@@ -1,0 +1,357 @@
+# Margana Monorepo Split Strategy
+
+This document outlines the proposed strategy for refactoring the current Margana monorepo into a multi-repository (polyrepo) architecture. This will separate the Vue frontend, Python backend/scripts, and Terraform infrastructure while maintaining necessary links and shared components.
+
+## Proposed Repositories
+
+### 1. `margana-web` (Frontend)
+**Contents:**
+- `src/`: Vue source code, components, services, and assets.
+- `public/`: Static public assets.
+- `scripts/`: Frontend-specific build scripts (e.g., `build-xor-filter.ts`).
+- `package.json`, `vite.config.js`, `tsconfig.json`: Node.js and Vite configuration.
+
+**Key Responsibilities:**
+- UI/UX implementation.
+- Client-side word validation (via XOR filters).
+- Consumption of backend APIs and S3-hosted game data.
+
+---
+
+### 2. `margana-backend` (Backend & Data)
+**Contents:**
+- `python/lambdas/`: Lambda handler entrypoints.
+- `python/ecs/`: Future ECS/container entrypoints for puzzle generation jobs.
+- `python/`: Shared Python packages (`margana_gen`, `margana_score`, `margana_metrics`, etc.).
+- `postmarkTemplates/`: Email templates used by backend services.
+- `resources/`: Sample events and test data for backend services.
+- `requirements.txt` / `pyproject.toml`: Python dependency management.
+- **Note:** The `margana-word-list.txt` is fetched from S3 during the build/CI-CD process and bundled into the Lambda Layers.
+
+**Key Responsibilities:**
+- Daily puzzle generation.
+- Result processing and scoring logic.
+- Email notifications (Postmark).
+- API Gateway backend logic.
+
+---
+
+### 3. `margana-infra` (Infrastructure)
+**Contents:**
+- `infra/`: Terraform modules and environment configurations.
+- `infra/envs/`: Environment-specific variables (preprod, prod).
+
+**Key Responsibilities:**
+- Provisioning AWS resources (S3, Cognito, API Gateway, Lambda, CloudFront, etc.).
+- Managing IAM policies and networking.
+
+---
+
+## Managing Shared Components and Links
+
+### 1. Shared Build-Time Assets
+The backend currently depends on shared build-time assets for puzzle generation, validation, and scoring consistency:
+
+- `margana-word-list.txt`
+- `horizontal-exclude-words.txt`
+- `letter-scores-v3.json`
+
+The word list is the most critical link between Python (runtime validation/generation) and Vue (build-time XOR filter generation). The horizontal exclude list and letter score configuration should be managed using the same pattern so puzzle-generation jobs and backend scoring do not rely on Git-committed canonical copies.
+
+**Strategy:**
+- **Source of Truth:** A dedicated S3 bucket (e.g., `margana-static-assets`) managed by `margana-infra`.
+- **Backend Consumption (Build-Time):** During the `margana-backend` CI/CD build process (specifically when creating Python Lambda Layers), the word list is downloaded from S3 and placed into `python/margana_score/data/`. This ensures the word list is bundled with the code, providing **zero runtime latency** and avoiding extra S3 calls in the Lambdas.
+- **Backend Consumption for Puzzle Jobs (Build-Time):** During backend packaging for ECS/job workloads, `horizontal-exclude-words.txt` should also be downloaded from S3 and placed in the path expected by the puzzle-generation job packaging process.
+- **Backend Consumption for Shared Scoring Configuration (Build-Time):** During backend packaging, `letter-scores-v3.json` should be downloaded from S3 and placed in the path expected by both ECS/job packaging and any backend scoring components that depend on canonical letter scores.
+- **Frontend Consumption (Build-Time):** During the `margana-web` CI/CD build process, the word list is downloaded from S3 before running `npm run build:wordfilter` to generate the XOR filters.
+- **Benefits:**
+  - Single source of truth (S3).
+  - No runtime dependency on S3 for word validation.
+  - Consistent validation, puzzle-generation behavior, and scoring configuration across repositories by using the exact same source files at build time.
+
+### 2. Infrastructure & Backend Decoupling
+Currently, Terraform builds Lambda packages by referencing local Python paths.
+
+**Strategy:**
+- **Artifact-Based Deployment:** Update the `margana-backend` CI/CD to package Lambda functions into `.zip` files and upload them to an S3 "Build Artifacts" bucket.
+- **Terraform Update:** Modify `margana-infra` to use `s3_bucket` and `s3_key` in `aws_lambda_function` resources instead of `source_file` or `source_dir`.
+
+### 3. Shared Data Models (JSON Contracts)
+The frontend and backend share JSON formats for files like `margana-completed.json`.
+
+**Strategy:**
+- **Documentation:** Maintain a shared API/Contract documentation (e.g., in a `docs` folder or a separate Wiki).
+- **Schema Validation:** Consider introducing JSON Schema files in the `margana-backend` repo that can be used for testing in both backend and frontend.
+- **Split cleanup note (2026-03-13):** `badge-milestones.json` is temporarily duplicated in `margana-web` and backend Python-owned code so the frontend no longer depends on a monorepo `python/` import path. `letter-scores-v3.json` is also still effectively shared configuration across repos. After the split stabilizes, consolidate these into clearly owned single sources of truth.
+
+### 4. Configuration Sharing
+The frontend requires AWS resource IDs (Cognito Pool IDs, API Endpoints) generated by Terraform.
+
+**Strategy:**
+- **Environment Variables:** Terraform should continue to output these values.
+- **Automated Update:** Use a script or CI/CD step to update the `.env` files in `margana-web` with values from Terraform outputs, or have the frontend fetch configuration at runtime from an `aws-exports.json` style file hosted on S3.
+
+---
+
+## Repository Visibility and CI/CD
+To leverage free CI/CD resources (e.g., GitHub Actions or GitLab CI/CD), the new repositories will be set as **Public**.
+
+- **Security:** Ensure that no secrets (AWS keys, API keys, etc.) are committed to the repositories. Use repository secrets (Action Secrets/CI Variables) for deployment.
+- **Access Control:** While the code is public, access to the AWS environment is controlled via IAM roles and secrets managed by `margana-infra`.
+
+---
+
+## Phased Implementation Roadmap (Priority Ordered)
+
+To ensure a smooth transition without breaking the existing application, the migration will follow a phased approach. The original monorepo will remain the primary production source until all phases are complete and verified.
+
+### Phase 1: Infrastructure & Foundation (High Priority)
+**Goal:** Prepare the shared AWS resources that will act as the "bridge" between the new repositories.
+1.  **Initialize `margana-infra` repo:** Port existing Terraform code and modules.
+2.  **Provision S3 "Static Assets" Bucket:** For the `margana-word-list.txt` (managed by `margana-infra`).
+3.  **Provision S3 "Build Artifacts" Bucket:** To store Lambda `.zip` files (managed by `margana-infra`).
+4.  **Initial Word List Upload:** Manually or via a script, upload the current word list to the Static Assets bucket.
+
+### Phase 2: Backend Migration & Artifact-Based Deployment
+**Goal:** Decouple the Python code from the infrastructure deployment.
+1.  **Initialize `margana-backend` repo:** Migrate the `python/`, `resources/`, and `postmarkTemplates/` directories.
+2.  **Setup Backend CI/CD:**
+    -   Use **GitHub Actions** as the CI/CD runner for `margana-backend`.
+    -   Use **AWS OIDC** federation from GitHub Actions to AWS instead of long-lived AWS access keys.
+    -   Split this work into the following implementation steps:
+
+    **Phase 2.2.1: Define deployment inventory**
+    -   Identify which files in `python/lambdas/` are actual Lambda entrypoints.
+    -   Separate deployable Lambdas from local-only scripts, utilities, and one-off admin tools.
+    -   Keep future puzzle-generation ECS jobs under `python/ecs/` so they are excluded from Lambda packaging.
+    -   Decide which shared Python packages must be bundled with every Lambda (`margana_score`, `margana_gen`, `margana_metrics`, `margana_costing`, etc.).
+    -   Document the expected artifact naming convention for each Lambda package.
+    -   Status (2026-03-12): complete in `margana-backend`; see `docs/deployment-inventory.md`.
+
+    **Phase 2.2.2: Configure GitHub Actions authentication to AWS**
+    -   Add a GitHub Actions workflow for backend build and packaging.
+    -   Configure the workflow with `permissions` required for OIDC, including `id-token: write`.
+    -   Create an AWS IAM OIDC identity provider for `https://token.actions.githubusercontent.com` if not already present.
+    -   Create a dedicated IAM role for this repository to assume from GitHub Actions.
+    -   Restrict the IAM role trust policy to this repository and the intended branch/environment using the GitHub `sub` claim.
+    -   Grant the role the minimum required permissions:
+        -   read access to the required canonical objects in the Static Assets bucket,
+        -   write access to the `backend/` prefix in the Build Artifacts bucket,
+        -   bucket-level access needed for validation checks.
+    -   Avoid storing long-lived AWS credentials in GitHub secrets.
+    -   Status (2026-03-12): preprod implementation complete and verified.
+    -   Completed preprod setup:
+        -   AWS IAM OIDC provider created for `token.actions.githubusercontent.com` with audience `sts.amazonaws.com`.
+        -   GitHub Actions role created: `arn:aws:iam::992468223519:role/margana-github-backend-preprod`.
+        -   Trust policy verified for GitHub Environment-based subject matching:
+            -   `repo:karoosoftware/margana-backend:environment:preprod`
+        -   GitHub Environment variables configured in `karoosoftware/margana-backend` for `preprod`:
+            -   `AWS_GITHUB_ACTIONS_ROLE_ARN`
+            -   `AWS_REGION`
+            -   `STATIC_ASSETS_BUCKET`
+            -   `BUILD_ARTIFACTS_BUCKET`
+            -   `BUILD_ARTIFACTS_PREFIX`
+        -   Workflow authentication verified from GitHub Actions using `aws-actions/configure-aws-credentials`.
+        -   Successful `aws sts get-caller-identity` run confirmed role assumption from GitHub Actions.
+        -   Successful read test from `margana-static-assets-preprod` confirmed access to `margana-word-list.txt`.
+        -   Successful write test to `margana-build-artifacts-preprod/backend/oidc-check.txt` confirmed artifact upload permissions.
+    -   Preprod values currently in use:
+        -   `AWS_REGION=eu-west-2`
+        -   `STATIC_ASSETS_BUCKET=margana-static-assets-preprod`
+        -   `BUILD_ARTIFACTS_BUCKET=margana-build-artifacts-preprod`
+        -   `BUILD_ARTIFACTS_PREFIX=backend`
+    -   Implementation note:
+        -   Because the workflow uses a GitHub Environment (`environment: preprod`), the IAM trust policy must match the environment-based GitHub OIDC subject, not only a branch ref such as `refs/heads/main`.
+    -   Remaining work:
+        -   replicate the same pattern for `prod` when required,
+        -   remove temporary workflow diagnostics once backend CI is stable,
+        -   continue with Phase 2.2.3 asset placement and packaging integration.
+
+    **Phase 2.2.3: Add build-time word list retrieval**
+    -   Download the canonical `margana-word-list.txt` from the Static Assets bucket during the workflow.
+    -   Download `horizontal-exclude-words.txt` from the same Static Assets bucket during the workflow for puzzle-generation job packaging.
+    -   Download `letter-scores-v3.json` from the same Static Assets bucket during the workflow.
+    -   Place it into the path expected by the packaging/build logic, currently `layer-root/python/margana_score/data/margana-word-list.txt`.
+    -   Place `horizontal-exclude-words.txt` into the path expected by the ECS/job packaging logic.
+    -   Place `letter-scores-v3.json` into the path expected by shared scoring logic and ECS/job packaging.
+    -   Keep all canonical build-fetched assets out of Git where they are intended to be supplied by CI/CD.
+    -   Ensure the workflow fails clearly if any required asset cannot be retrieved.
+    -   Keep test-only fixtures separate from the runtime bundled assets.
+    -   Status (2026-03-12): started in `preprod`; direct S3 retrieval of canonical assets from GitHub Actions has been validated.
+    -   Implementation note (2026-03-12): this phase is being delivered in two passes.
+        -   Pass 1 is Lambda-focused and only fetches `margana-word-list.txt` into `layer-root/python/margana_score/data/margana-word-list.txt` so Lambda packaging can proceed.
+        -   Pass 2 will add `horizontal-exclude-words.txt` and `letter-scores-v3.json` when ECS/job packaging is implemented.
+
+    **Phase 2.2.4: Add repeatable Python environment setup**
+    -   Standardize the CI Python version (currently Python 3.12 based on `pyproject.toml`).
+    -   Install the package and dev/test dependencies in a repeatable way.
+    -   Prefer `pyproject.toml` as the source of truth for development/test dependencies.
+    -   Ensure the workflow can run from a clean checkout with no local-only assumptions.
+
+    **Phase 2.2.5: Run backend validation in CI**
+    -   Run the Python test suite in GitHub Actions.
+    -   Ensure tests do not rely on untracked local files or manually prepared environments.
+    -   Fail the workflow if tests fail.
+    -   Optionally add formatting/linting later, but the minimum requirement for Phase 2.2 is test execution.
+
+    **Phase 2.2.6: Package Lambda artifacts**
+    -   Build deployable Lambda artifacts using a shared-layer model.
+    -   Produce:
+        -   one shared Lambda Layer artifact for common Python runtime code and assets,
+        -   one thin handler `.zip` per Lambda entrypoint under `lambdas/`.
+    -   The shared layer should include:
+        -   shared internal packages required by deployed Lambdas such as `margana_score`, `margana_metrics`, and `margana_costing`,
+        -   bundled runtime assets such as `layer-root/python/margana_score/data/margana-word-list.txt`,
+        -   other package-scoped runtime config such as `layer-root/python/margana_metrics/badge-milestones.json`.
+    -   The thin handler zip should include only the specific Lambda handler file from `lambdas/`.
+    -   Exclude `ecs/` jobs from Lambda packaging.
+    -   Avoid duplicating shared internal packages across every handler zip when they are already provided by the shared layer.
+    -   Keep the packaging output deterministic and suitable for reuse by Terraform.
+    -   Status (2026-03-13): implemented in `preprod`; the workflow builds one shared layer artifact plus thin handler zips and uploads them to the Build Artifacts bucket.
+    -   Current repo source of truth: see `docs/deployment-inventory.md` for shared layer contents and handler-to-layer expectations.
+    -   Implementation notes (2026-03-13):
+        -   a first workflow draft that packaged full per-Lambda zips was explored,
+        -   artifact inspection showed each zip incorrectly contained all Lambda handlers because the project install pulled in the full old handler package,
+        -   that approach was replaced with a shared-layer build plus thin handler zips,
+        -   thin handler artifacts are now discovered dynamically from the `lambdas/` directory by the packaging script,
+        -   the shared layer now copies only internal shared packages and runtime assets from `layer-root/python/`; it does not vendor the AWS SDK stack.
+
+    **Phase 2.2.7: Publish artifacts to S3**
+    -   Upload generated Lambda handler `.zip` files and the shared layer `.zip` to the Build Artifacts bucket.
+    -   Use a predictable S3 key structure, for example by repository, branch/environment, and commit SHA.
+    -   Capture artifact names/paths as workflow outputs so they can be consumed by later deployment steps.
+    -   Ensure uploaded artifacts are immutable or versioned enough to support traceable deployments.
+    -   Status (2026-03-13): implemented in `preprod`.
+    -   Current published artifact shape:
+        -   shared layer artifact: `shared-python-deps-layer__<git-sha>.zip`
+        -   thin handler artifacts: one `<logical-name>__<git-sha>.zip` per discovered handler file in `lambdas/`
+        -   S3 key layout: `backend/preprod/<git-sha>/<artifact-name>`
+
+    **Phase 2.2.8: Define workflow triggers and release behavior**
+    -   Run validation on pull requests.
+    -   Run build/package on pushes to the main deployment branch.
+    -   Decide whether artifact upload happens:
+        -   on every main branch push, or
+        -   only on tagged releases / manual workflow dispatch.
+    -   Keep deployment to infrastructure changes out of this phase; this phase only produces validated artifacts.
+
+    **Phase 2.2.9: Document required CI/CD configuration**
+    -   Document the required GitHub repository settings, AWS role ARN, bucket names, and environment variables.
+    -   Document which values are expected to come from GitHub repository variables, GitHub environments, or workflow inputs.
+    -   Record the intended artifact naming/path convention so `margana-infra` can consume it in Phase 2.3.
+    -   Status (2026-03-13): partially implemented.
+        -   Backend CI now uses a repo-owned packaging script to build the shared layer and thin handler artifacts.
+        -   Handler artifact discovery is dynamic from `lambdas/`; Terraform remains the source of truth for which artifacts are actually deployed.
+
+    **Phase 2.2 exit criteria**
+    -   A clean GitHub Actions run can:
+        -   authenticate to AWS via OIDC,
+        -   download the word list,
+        -   install dependencies,
+        -   run tests,
+        -   package the backend Lambdas using the shared-layer plus thin-handler model,
+        -   upload the artifacts to the Build Artifacts bucket.
+    -   No long-lived AWS access keys are required in GitHub.
+    -   The generated artifact locations are stable enough for infrastructure integration in Phase 2.3.
+3.  **Update `margana-infra`:** Modify `aws_lambda_function` resources to point to the Build Artifacts bucket instead of local files.
+    -   **Phase 2.3: Switch Terraform to backend-published artifacts**
+    -   Status (2026-03-13): implemented in `preprod`; `prod` intentionally deferred until the remaining monorepo refactoring is complete.
+    -   Completed in `preprod`:
+        -   `aws_lambda_function` resources now load handler code from the Build Artifacts bucket using `s3_bucket` / `s3_key`.
+        -   Terraform no longer packages Lambda handlers from local source in `margana-infra`.
+        -   the three local internal layer builds were replaced with one shared S3-backed Lambda layer resource using `shared-python-deps-layer__<git-sha>.zip`.
+        -   Lambda keys and `lambda_arns` output keys were normalized to the canonical backend artifact logical names.
+        -   dashboard query templates now resolve from `monitoring/logs_queries/`.
+    -   Outstanding for `prod` once the monorepo refactor is complete:
+        -   choose the backend artifact SHA to deploy and update `envs/prod/prod.auto.tfvars`,
+        -   run the `terraform state mv` sequence for the renamed `module.lambda[...]` keys in `envs/prod`,
+        -   run a `terraform plan` in `envs/prod` and verify all handler and shared-layer artifact keys exist in the Build Artifacts bucket,
+        -   apply the `prod` cutover to switch handlers and shared layer to S3-backed artifacts,
+        -   apply the follow-up cleanup to remove the obsolete local layer build resources from `prod` state.
+4.  **Verification:** Deploy backend changes to `preprod` from the new repositories and verify functionality.
+
+### Phase 3: Frontend Migration
+**Goal:** Move the UI to its own lifecycle.
+1.  **Initialize `margana-web` repo:** Migrate `src/`, `public/`, and frontend configs.
+2.  **Setup Frontend CI/CD:**
+    -   Fetch `margana-word-list.txt` from S3.
+    -   Run `npm run build:wordfilter`.
+    -   Build and deploy to the frontend hosting (e.g., S3/CloudFront).
+3.  **Verification:** Ensure the new frontend correctly communicates with the backend APIs.
+
+    **Phase 3 current handoff status (2026-03-13)**
+    -   Backend split work for `preprod` is complete enough for the frontend split to proceed:
+        -   backend CI publishes thin handler zips plus a shared layer zip,
+        -   `margana-infra` `preprod` consumes those S3-published artifacts,
+        -   `prod` infrastructure cutover is intentionally deferred until the broader split is finished.
+    -   The next active workstream is therefore the frontend migration in `margana-web`.
+
+    **Concrete Phase 3 implementation plan**
+    -   **Phase 3.1: Define the frontend build contract**
+        -   Decide exactly which external inputs the frontend build requires for `preprod`.
+        -   At minimum, define:
+            -   `STATIC_ASSETS_BUCKET`,
+            -   `AWS_REGION`,
+            -   frontend environment values for API base URL, Cognito identifiers, and any hosted asset/config URLs.
+        -   Record how the frontend will distinguish `preprod` from `prod`.
+
+    -   **Phase 3.2: Inventory current frontend build dependencies**
+        -   Inspect the current frontend build to identify monorepo-local assumptions.
+        -   Confirm:
+            -   where the word list is expected before `npm run build:wordfilter`,
+            -   whether XOR filter generation depends only on `margana-word-list.txt`,
+            -   which environment/config values are currently hardcoded,
+            -   whether any frontend build steps reference files outside the frontend repo boundary.
+        -   Treat this as the source-of-truth discovery step before changing CI/CD.
+
+    -   **Phase 3.3: Add build-time word-list retrieval**
+        -   Authenticate to AWS from frontend CI.
+        -   Download `margana-word-list.txt` from the Static Assets bucket during the build.
+        -   Place it in the path expected by the frontend XOR filter build step.
+        -   Fail clearly if the object is missing or cannot be read.
+
+    -   **Phase 3.4: Externalize frontend environment configuration**
+        -   Remove reliance on local-only or monorepo-only configuration assumptions.
+        -   Decide whether frontend config is supplied:
+            -   at build time from Terraform outputs / CI variables, or
+            -   at runtime from a hosted config file.
+        -   Prefer the smallest change that preserves the current frontend architecture.
+
+    -   **Phase 3.5: Add `preprod` frontend CI/CD**
+        -   Standardize Node install/build steps from a clean checkout.
+        -   Fetch the canonical word list from S3.
+        -   Run `npm run build:wordfilter`.
+        -   Build the frontend.
+        -   Publish the frontend to the `preprod` hosting target.
+        -   Invalidate CloudFront if needed.
+        -   Prefer GitHub Actions + AWS OIDC rather than long-lived AWS credentials.
+
+    -   **Phase 3.6: Verify end-to-end behavior in `preprod`**
+        -   Confirm the frontend loads from the `preprod` URL.
+        -   Confirm authentication flows work.
+        -   Confirm frontend API calls hit the split backend correctly.
+        -   Confirm word validation/XOR filter behavior still matches the canonical word list.
+        -   Confirm any shared JSON/data contracts still behave as expected.
+
+    -   **Phase 3.7: Document the frontend operational contract**
+        -   Record required repository variables, AWS role configuration, bucket names, and environment values.
+        -   Document how the frontend receives Terraform-managed configuration.
+        -   Document the build-time dependency on the Static Assets bucket.
+        -   Record the `preprod` rollout procedure so `prod` can follow later.
+
+    **Immediate next step**
+    -   Start with Phase 3.1 and Phase 3.2 together in `margana-web`.
+    -   The first implementation task is to inspect the frontend build and write down:
+        -   where the word list is currently sourced,
+        -   how `build:wordfilter` consumes it,
+        -   which config values the app requires from infrastructure,
+        -   which repo-relative or monorepo-relative paths must be removed during the split.
+
+### Phase 4: Final Verification & Cutover
+**Goal:** Ensure parity and switch production traffic.
+1.  **End-to-End Testing:** Validate the entire application using only the new repositories in a staging environment.
+2.  **DNS/Traffic Switch:** Update CloudFront/Route53 to point to the new deployments.
+3.  **Monorepo Retirement:** Once stable, the original monorepo can be archived.
+
+---
+*Note: During this process, any critical bug fixes should be applied to both the monorepo (for immediate production support) and the relevant new repository until the cutover is complete.*

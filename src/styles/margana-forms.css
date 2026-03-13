@@ -1,0 +1,7 @@
+@layer components {
+  .form-input {
+    @apply w-full rounded-lg bg-white/10 text-white placeholder-white/50
+    border border-purple-500/70 px-3 py-2 text-sm
+    focus:outline-none focus:ring-1 focus:ring-purple-400/80 focus:border-purple-400;
+  }
+}

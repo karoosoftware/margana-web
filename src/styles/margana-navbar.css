@@ -1,0 +1,22 @@
+.margana-navbar .navbar-logo-img {
+  height: var(--margana-navbar-logo-h);
+  transform: translateX(var(--margana-navbar-logo-x));
+}
+
+.margana-navbar .navbar-logo-area {
+  /* removed transform from area to prevent moving the portal/banner */
+}
+
+.margana-navbar .hamburger-container {
+  padding-left: var(--margana-navbar-hamburger-pl) !important;
+}
+
+.margana-navbar .hamburger-trigger {
+  width: var(--margana-navbar-hamburger-size) !important;
+  height: var(--margana-navbar-hamburger-size) !important;
+}
+
+.margana-navbar .hamburger-trigger svg {
+  width: var(--margana-navbar-hamburger-icon) !important;
+  height: var(--margana-navbar-hamburger-icon) !important;
+}

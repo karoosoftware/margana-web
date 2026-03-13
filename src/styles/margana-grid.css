@@ -1,0 +1,105 @@
+@layer components {
+  /* Main play column width constraints. */
+  .margana-play-column {
+    width: 100%;
+    max-width: var(--margana-play-max);
+  }
+
+  /* Grid container vertical spacing. */
+  .margana-grid-wrap {
+    margin-top: var(--margana-grid-my);
+    margin-bottom: var(--margana-grid-my);
+  }
+
+  /* Shared width for grid-aligned elements (buttons, grid, etc.). */
+  .margana-grid-width {
+    width: 100%;
+    max-width: var(--margana-top-controls-max);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Grid tile sizes - consuming centralized variables */
+  .margana-grid-tile-small {
+    width: var(--margana-tile-w-sm);
+    height: var(--margana-tile-h-sm);
+    flex-shrink: 0;
+  }
+
+  .margana-grid-tile-tiny {
+    width: var(--margana-tile-w-xs);
+    height: var(--margana-tile-h-xs);
+    flex-shrink: 0;
+  }
+
+  .margana-grid-tile-medium {
+    width: var(--margana-tile-w-md);
+    height: var(--margana-tile-h-md);
+    flex-shrink: 0;
+  }
+
+  .margana-grid-tile-large {
+    width: var(--margana-tile-w-lg);
+    height: var(--margana-tile-h-lg);
+    border-radius: var(--margana-grid-radius);
+    flex-shrink: 0;
+  }
+
+  .margana-grid-radius-tiny {
+    border-radius: var(--margana-grid-radius-tiny);
+  }
+
+  .margana-grid-radius-small {
+    border-radius: var(--margana-grid-radius-small);
+  }
+
+  .margana-grid-radius-medium {
+    border-radius: var(--margana-grid-radius-medium);
+  }
+
+  .margana-grid-radius-large {
+    border-radius: var(--margana-grid-radius-large);
+  }
+
+  /* Grid spacing */
+  .margana-grid-gap {
+    gap: var(--margana-grid-gap);
+  }
+
+  .margana-grid-row {
+    gap: var(--margana-grid-gap);
+  }
+
+  /* Typography */
+  .margana-grid-letter {
+    font-size: var(--margana-grid-font-size);
+    font-weight: var(--margana-grid-font-weight);
+  }
+
+  @media (max-width: 430px) {
+    .margana-grid-letter {
+      /* Prevent iOS auto-zoom on focus by ensuring font-size is at least 16px.
+         While slightly deviating from Golden Look on small screens, it prevents 
+         the destructive layout shift triggered by automated ghost player focus. */
+      font-size: max(12px, var(--margana-grid-font-size));
+    }
+  }
+
+  .margana-grid-score {
+    font-size: var(--margana-grid-score-font-size) !important;
+  }
+
+  .margana-grid-score-pos {
+    bottom: var(--margana-grid-score-pos) !important;
+    right: var(--margana-grid-score-pos) !important;
+  }
+}
+
+/* Specific Layout Overrides (Behavioral rules stay here; values are in style.css) */
+
+@media (max-width: 430px) {
+  /* Allow play column to use full width on phones. */
+  .margana-play-column {
+    max-width: 100%;
+  }
+}

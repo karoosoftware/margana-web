@@ -1,0 +1,27 @@
+{
+  "name": "Margana: The Tactical Word Game",
+  "short_name": "Margana",
+  "description": "Margana is the ultimate tactical daily word game. Complete the grid and find the longest anagrams.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#581c87",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/Margana_logo_48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/Margana_logo_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/Margana_logo_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

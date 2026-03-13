@@ -1,0 +1,151 @@
+@layer components {
+  /* Controls row vertical spacing. */
+  .margana-controls-wrap {
+    margin-top: var(--margana-controls-mt);
+    margin-bottom: var(--margana-controls-mb);
+  }
+
+  /* Top controls button (Letter scores, Tutorial) */
+  .margana-top-controls-btn {
+    padding: var(--margana-top-btn-py) var(--margana-top-btn-px);
+    font-size: var(--margana-top-btn-font-size);
+  }
+
+  /* Container for top controls alignment */
+  .margana-top-controls-container {
+    width: 100%;
+    max-width: var(--margana-top-controls-max);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Top controls icon sizing. */
+  .margana-top-controls-icon {
+    width: var(--margana-top-icon-size);
+    height: var(--margana-top-icon-size);
+  }
+
+  /* Common action buttons (Submit, etc.) */
+  .controls-btn {
+    padding: var(--margana-btn-py) var(--margana-btn-px);
+    font-size: var(--margana-btn-font-size);
+  }
+
+  /* Shared button styling for common action buttons. */
+  .btn-common-button {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-8 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center
+    bg-gradient-to-tr from-indigo-500 via-purple-600 to-violet-700
+    enabled:hover:from-indigo-400 enabled:hover:via-purple-500 enabled:hover:to-violet-600
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  .btn-common-button-small {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-8 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center
+    bg-gradient-to-tr from-indigo-500 via-purple-600 to-violet-700
+    enabled:hover:from-indigo-400 enabled:hover:via-purple-500 enabled:hover:to-violet-600
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Common button with leading/trailing icon. */
+  .btn-common-button-icon {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-10 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center gap-2
+    bg-gradient-to-tr from-indigo-500 via-purple-600 to-violet-700
+    enabled:hover:from-indigo-400 enabled:hover:via-purple-500 enabled:hover:to-violet-600
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Navigation buttons (match common button styling for now). */
+  .btn-navigation {
+    @apply inline-flex items-center justify-center
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-10 whitespace-nowrap
+    rounded-full font-semibold text-white
+    bg-gradient-to-tr from-indigo-500 via-purple-600 to-violet-700
+    enabled:hover:from-indigo-400 enabled:hover:via-purple-500 enabled:hover:to-violet-600
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Account-management buttons (match common button styling for now). */
+  .btn-account-management {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-10 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center
+    bg-gradient-to-tr from-indigo-500 via-purple-600 to-violet-700
+    enabled:hover:from-indigo-400 enabled:hover:via-purple-500 enabled:hover:to-violet-600
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Danger buttons for destructive actions (e.g. account deletion). */
+  .btn-danger {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-10 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center
+    bg-gradient-to-tr from-red-500 via-red-600 to-red-700
+    enabled:hover:from-red-400 enabled:hover:via-red-500 enabled:hover:to-red-600
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Secondary buttons for non-primary or cancel actions. */
+  .btn-secondary {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-10 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center
+    bg-white/10 enabled:hover:bg-white/20
+    disabled:opacity-50 disabled:cursor-not-allowed
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Landing page teal-yellow button style. */
+  .btn-teal-yellow {
+    @apply justify-self-center min-w-0
+    px-4 sm:px-5 py-0.5 sm:py-1 text-xs sm:text-sm
+    h-9 sm:h-10 whitespace-nowrap
+    rounded-full font-semibold text-white
+    inline-flex items-center justify-center
+    bg-[linear-gradient(45deg,rgb(35,141,132)_10%,rgb(250,204,21)_90%)]
+    enabled:hover:opacity-90
+    shadow transition-all enabled:active:scale-[0.98];
+  }
+
+  /* Controls button sizing: small bucket. (Now driven by tokens) */
+  .margana-controls-btn-small {
+    padding: calc(var(--margana-btn-py) * 0.8) calc(var(--margana-btn-px) * 0.8);
+    font-size: calc(var(--margana-btn-font-size) * 0.8);
+  }
+
+  /* Controls button sizing: medium bucket. (Now driven by tokens) */
+  .margana-controls-btn-medium {
+    padding: var(--margana-btn-py) var(--margana-btn-px);
+    font-size: var(--margana-btn-font-size);
+  }
+
+  /* Controls button sizing: large bucket. (Now driven by tokens) */
+  .margana-controls-btn-large {
+    padding: calc(var(--margana-btn-py) * 1.2) calc(var(--margana-btn-px) * 1.2);
+    font-size: calc(var(--margana-btn-font-size) * 1.2);
+  }
+}

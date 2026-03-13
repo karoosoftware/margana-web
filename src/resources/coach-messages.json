@@ -1,0 +1,23 @@
+{
+  "stages": {
+    "ROW_INCOMPLETE": [
+      "Type in letters to make a horizontal word",
+      "Goal: Create valid words to score points. If words can also be read backwards, you will score double points",
+      "Tip: Vertical and diagonal words also score points",
+      "Tip: Type * if you are unable to find a word so that you can still submit the game",
+      "When you have completed the word grid, select ‘coaching’ for help completing the anagram challenge underneath"
+    ],
+    "ANAGRAM_PROGRESS": [
+      "Drag letters from the top row to the bottom row to make an anagram. Click ‘verify’ to check it is valid and see how many points it scores",
+      "Goal: Find the longest anagram possible and use all the letters to score 20 points extra",
+      "Tip: Greyed out letters need to be played in the word grid to release them to use in the anagram",
+      "When you have completed the anagram, select ‘coaching’ for tactical tips"
+    ],
+    "ADVANCED_TACTICS": [
+      "Tip: Try to play palindromes (words that read the same forwards and backwards) and semordnilaps (words that create another word when read backwards) to score more points",
+      "Tip: Decide if releasing all the letters for the anagram is worth it or keep high scoring words in the grid instead to score the most points",
+      "Tip: Check the word grid for edge-to-edge diagonal and vertical words to score more points",
+      "If you are happy with your score, submit your game"
+    ]
+  }
+}

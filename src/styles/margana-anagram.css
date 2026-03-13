@@ -1,0 +1,75 @@
+@layer components {
+  /* Anagram container vertical spacing. */
+  .margana-anagram-wrap {
+    margin-top: var(--margana-anagram-mt);
+    margin-bottom: var(--margana-anagram-mb);
+  }
+
+  /* Gap between top anagram row and builder row. */
+  .margana-anagram-row-gap {
+    margin-top: var(--margana-anagram-row-gap);
+  }
+
+  /* Anagram tile sizes - consuming centralized variables */
+  .margana-anagram-tile-small {
+    width: var(--margana-anagram-w-sm);
+    height: var(--margana-anagram-h-sm);
+    flex-shrink: 0;
+  }
+
+  .margana-anagram-tile-tiny {
+    width: var(--margana-anagram-w-xs);
+    height: var(--margana-anagram-h-xs);
+    flex-shrink: 0;
+  }
+
+  .margana-anagram-tile-medium {
+    width: var(--margana-anagram-w-md);
+    height: var(--margana-anagram-h-md);
+    flex-shrink: 0;
+  }
+
+  .margana-anagram-tile-large {
+    width: var(--margana-anagram-w-lg);
+    height: var(--margana-anagram-h-lg);
+    flex-shrink: 0;
+  }
+
+  .margana-anagram-tile {
+    border-radius: var(--margana-anagram-radius) !important;
+    font-size: var(--margana-anagram-font-size);
+    font-weight: var(--margana-anagram-font-weight);
+  }
+
+  .score-badge {
+    font-size: var(--margana-anagram-score-font-size) !important;
+  }
+
+  /* Anagram row gaps */
+  .margana-anagram-gap-small {
+    gap: var(--margana-anagram-gap-sm);
+  }
+
+  .margana-anagram-gap-medium {
+    gap: var(--margana-anagram-gap-md);
+  }
+
+  .margana-anagram-gap-large {
+    gap: var(--margana-anagram-gap-lg);
+  }
+
+  /* Inner wrapper to keep controls aligned with tiles width */
+  .margana-anagram-inner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+    max-width: 100%;
+  }
+
+  /* Anagram avatar sizing. */
+  .margana-anagram-avatar {
+    width: var(--margana-anagram-avatar-w);
+    height: var(--margana-anagram-avatar-h);
+  }
+}

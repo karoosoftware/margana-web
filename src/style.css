@@ -1,0 +1,308 @@
+@import "tailwindcss";
+@import "./styles/poppins.css";
+@import "./styles/margana-grid.css";
+@import "./styles/margana-anagram.css";
+@import "./styles/margana-buttons.css";
+@import "./styles/margana-forms.css";
+@import "./styles/margana-loading.css";
+@import "./styles/margana-spinner.css";
+@import "./styles/margana-navbar.css";
+
+@layer base {
+  :root {
+    /* --- Master Unit (Source of Truth) --- */
+    --margana-master-unit: clamp(2.3rem, 10vw, 3.8rem);
+    --margana-tile-w-lg-mult: 0.9;
+    --margana-tile-w-lg: calc(var(--margana-master-unit) * var(--margana-tile-w-lg-mult));
+    --margana-landing-tile-w-xs: clamp(1.4rem, 6vw, 1.9rem);
+
+    /* --- Golden Ratios (Derived from Master Unit) --- */
+    /* Global Viewport Buckets (Loop-safe for local overrides) */
+    --margana-tile-w-md-global: calc(var(--margana-master-unit) * 0.75);
+    --margana-tile-w-sm-global: calc(var(--margana-master-unit) * 0.70);
+    --margana-tile-w-xs-global: calc(var(--margana-master-unit) * 0.70);
+
+    /* Logo Sizing Buckets */
+    --margana-logo-h-nav: calc(var(--margana-master-unit) * 2.1);
+    --margana-logo-h-md: calc(var(--margana-master-unit) * 2.5);
+    --margana-logo-h-lg: calc(var(--margana-master-unit) * 3.5);
+    --margana-logo-h-xl: calc(var(--margana-master-unit) * 4.5);
+    
+    --margana-play-max: clamp(20rem, 94vw, 31.25rem);
+    --margana-live-score-width: 100%;
+    --margana-footer-font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+    --margana-footer-py: clamp(0.5rem, 2vw, 0.75rem);
+  }
+
+  html, body {
+    font-family: "Poppins", "Century Gothic", "Futura", "Trebuchet MS", "Segoe UI", sans-serif;
+  }
+
+  /* --- Golden Ratios & Derived Tokens (Live Re-calculation) --- */
+  :root, .margana-proportions {
+    /* Grid Tiles */
+    --margana-tile-h-lg: calc(var(--margana-tile-w-lg) * 1.16);
+    --margana-tile-w-md: calc(var(--margana-tile-w-lg) * 0.75);
+    --margana-tile-h-md: calc(var(--margana-tile-w-lg) * 0.93);
+    --margana-tile-w-sm: calc(var(--margana-tile-w-lg) * 1.1);
+    --margana-tile-h-sm: calc(var(--margana-tile-w-lg) * 1.2);
+    --margana-tile-w-xs: calc(var(--margana-tile-w-lg) * 0.5);
+    --margana-tile-h-xs: calc(var(--margana-tile-w-lg) * 0.6);
+    
+    --margana-grid-font-size: calc(var(--margana-tile-w-lg) * 0.45);
+    --margana-grid-font-weight: 600; /* 600 = semibold, 700 = bold */
+    --margana-grid-score-font-size: calc(var(--margana-tile-w-lg) * 0.22);
+    --margana-grid-score-pos: calc(var(--margana-tile-w-lg) * 0.08);
+
+    /* Anagram Tiles (Subservient to Grid) */
+    --margana-anagram-w-lg: calc(var(--margana-tile-w-lg) * 0.7);
+    --margana-anagram-h-lg: calc(var(--margana-tile-w-lg) * 0.8);
+    --margana-anagram-w-md: calc(var(--margana-tile-w-lg) * 0.79);
+    --margana-anagram-h-md: calc(var(--margana-tile-w-lg) * 0.95);
+    --margana-anagram-w-sm: calc(var(--margana-tile-w-lg) * 0.55);
+    --margana-anagram-h-sm: calc(var(--margana-tile-w-lg) * 0.65);
+    --margana-anagram-w-xs: calc(var(--margana-tile-w-lg) * 0.54);
+    --margana-anagram-h-xs: calc(var(--margana-tile-w-lg) * 0.66);
+    
+    --margana-anagram-font-size-base: calc(var(--margana-tile-w-lg) * 0.36);
+    --margana-anagram-font-size: var(--margana-anagram-font-size-base);
+    --margana-anagram-font-weight: 600;
+    --margana-anagram-score-font-size-base: calc(var(--margana-tile-w-lg) * 0.17);
+    --margana-anagram-score-font-size: var(--margana-anagram-score-font-size-base);
+
+    /* UI Components */
+    --margana-spinner-font-size: calc(var(--margana-tile-w-lg) * 0.6);
+    --margana-spinner-h: calc(var(--margana-tile-w-lg) * 0.7);
+    --margana-live-score-min-h: var(--margana-spinner-h);
+    
+    /* Navbar Components */
+    --margana-navbar-logo-h: calc(var(--margana-tile-w-lg) * 2.1);
+    --margana-navbar-logo-x: calc(var(--margana-tile-w-lg) * 0.36);
+    --margana-navbar-hamburger-size: calc(var(--margana-tile-w-lg) * 0.70);
+    --margana-navbar-hamburger-icon: calc(var(--margana-tile-w-lg) * 0.45);
+    --margana-navbar-hamburger-pl: calc(var(--margana-tile-w-lg) * 1.30);
+
+    --margana-logo-h-header: calc(var(--margana-tile-w-lg) * 2.1);
+    --margana-logo-h-medium: calc(var(--margana-tile-w-lg) * 2);
+    --margana-logo-h-large: calc(var(--margana-tile-w-lg) * 3.5);
+    --margana-logo-h-xlarge: calc(var(--margana-tile-w-lg) * 4.5);
+    
+    /* Spacing & Layout */
+    --margana-grid-my: calc(var(--margana-tile-w-lg) * 0.3);
+    --margana-controls-mt: calc(var(--margana-tile-w-lg) * 0.3);
+    --margana-controls-mb: calc(var(--margana-tile-w-lg) * 0.15);
+    --margana-anagram-mt: calc(var(--margana-tile-w-lg) * 0.03);
+    --margana-anagram-mb: calc(var(--margana-tile-w-lg) * 0.20);
+    --margana-anagram-row-gap: calc(var(--margana-tile-w-lg) * 0.08);
+
+    /* Top Controls Buttons */
+    --margana-top-btn-font-size: calc(var(--margana-tile-w-lg) * 0.25);
+    --margana-top-icon-size: calc(var(--margana-tile-w-lg) * 0.28);
+    --margana-top-btn-py: calc(var(--margana-tile-w-lg) * 0.11);
+    --margana-top-btn-px: calc(var(--margana-tile-w-lg) * 0.22);
+
+    /* Other Tokens */
+    --margana-grid-gap: calc(var(--margana-tile-w-lg) * 0.07);
+    --margana-grid-radius: calc(var(--margana-tile-w-lg) * 0.2);
+    --margana-grid-radius-tiny: calc(var(--margana-tile-w-lg) * 0.2);
+    --margana-grid-radius-small: calc(var(--margana-tile-w-lg) * 0.3);
+    --margana-grid-radius-medium: calc(var(--margana-tile-w-lg) * 0.2);
+    --margana-grid-radius-large: calc(var(--margana-tile-w-lg) * 0.25);
+    --margana-anagram-radius: calc(var(--margana-tile-w-lg) * 0.15);
+    --margana-anagram-gap-lg: calc(var(--margana-tile-w-lg) * 0.07);
+    --margana-anagram-gap-md: calc(var(--margana-tile-w-lg) * 0.07);
+    --margana-anagram-gap-sm: calc(var(--margana-tile-w-lg) * 0.06);
+
+    --margana-grid-total-w: calc(5 * var(--margana-tile-w-lg) + 4 * var(--margana-grid-gap));
+    --margana-top-controls-max: var(--margana-grid-total-w);
+    
+    --margana-chevron-badge: calc(var(--margana-tile-w-lg) * 0.6);
+    --margana-anagram-avatar-w: calc(var(--margana-tile-w-lg) * 0.92);
+    --margana-anagram-avatar-h: calc(var(--margana-tile-w-lg) * 1.12);
+
+    /* Action Buttons (Reset, Submit, etc.) */
+    --margana-btn-py: calc(var(--margana-tile-w-lg) * 0.1);
+    --margana-btn-px: calc(var(--margana-tile-w-lg) * 0.22);
+    --margana-btn-font-size: calc(var(--margana-tile-w-lg) * 0.23);
+    --margana-btn-gap: calc(var(--margana-tile-w-lg) * 0.15);
+
+    /* Tutorial & Popup Specific Tokens */
+    --margana-tutorial-header-min-h: calc(var(--margana-tile-w-lg) * 2.0);
+    --margana-tutorial-dot-size: calc(var(--margana-tile-w-lg) * 0.5);
+    --margana-tutorial-tick-size: calc(var(--margana-tile-w-lg) * 0.7);
+    --margana-tutorial-tick-font-size: calc(var(--margana-tile-w-lg) * 0.3);
+    --margana-tutorial-close-size: calc(var(--margana-tile-w-lg) * 0.8);
+    --margana-tutorial-close-icon-size: calc(var(--margana-tile-w-lg) * 0.4);
+    --margana-popup-offset: calc(var(--margana-tile-w-lg) * -0.90);
+    --margana-popup-font-size: calc(var(--margana-tile-w-lg) * 0.35);
+
+    /* Achievements & Badges */
+    --margana-badge-size: calc(var(--margana-tile-w-lg) * 1.5);
+    --margana-badge-font-size: calc(var(--margana-badge-size) * 0.25);
+    --margana-badge-icon-size: calc(var(--margana-tile-w-lg) * 0.65);
+    --margana-badge-pb-w: calc(var(--margana-tile-w-lg) * 1.08);
+    --margana-badge-pb-h: calc(var(--margana-tile-w-lg) * 0.10);
+    --margana-badge-pb-offset: calc(var(--margana-badge-size) * 0);
+    --margana-badge-inset: calc(var(--margana-tile-w-lg) * 0.06);
+    --margana-badge-gap: calc(var(--margana-badge-size) * 0.12);
+    --margana-badge-logo-pad: calc(var(--margana-badge-size) * 0);
+    --margana-badge-logo-offset: calc(var(--margana-badge-size) * 0.05);
+    --margana-badge-text-offset: calc(var(--margana-badge-size) * 0.1);
+    --margana-badge-locked-offset: calc(var(--margana-badge-size) * 0.05);
+    --margana-badge-locked-text-offset: calc(var(--margana-badge-size) * -0.03);
+    --margana-badge-row-gap: calc(var(--margana-tile-w-lg) * 0.20);
+    --margana-badge-row-margin: calc(var(--margana-tile-w-lg) * 0.05);
+    --margana-badge-arrow-size: calc(var(--margana-tile-w-lg) * 0.35);
+    --margana-badge-grid-gap: calc(var(--margana-tile-w-lg) * 0.50);
+    
+    /* Post Game View Specifics (Control via .margana-postgame-view or .yesterday-postgame-scope) */
+    --margana-postgame-grid-tile-w: var(--margana-tile-w-md);
+    --margana-postgame-grid-tile-h: var(--margana-tile-h-md);
+    --margana-postgame-grid-font-size: calc(var(--margana-tile-w-lg) * 0.35);
+    --margana-postgame-grid-score-font-size: calc(var(--margana-tile-w-lg) * 0.2);
+
+    --margana-postgame-anagram-w: var(--margana-anagram-w-sm);
+    --margana-postgame-anagram-h: var(--margana-anagram-h-sm);
+    --margana-postgame-anagram-font-size: calc(var(--margana-anagram-font-size-base) * 0.8);
+    --margana-postgame-anagram-score-font-size: calc(var(--margana-anagram-score-font-size-base) * 0.8);
+
+    --margana-postgame-valid-words-circle-size: calc(var(--margana-tile-w-lg) * 0.6);
+    --margana-postgame-valid-words-score-font-size: calc(var(--margana-postgame-valid-words-circle-size) * 0.42);
+    --margana-postgame-valid-words-font-size: clamp(0.8rem, var(--margana-tile-w-lg) * 0.32, 1rem);
+  }
+
+  /* --- Landscape Immersive Central (Anagram focus) --- */
+  body.landscape-immersive {
+    /* Height-based scaling for landscape - Master Unit switch to vh */
+    --margana-master-unit: clamp(3.2rem, 19vh, 6.2rem);
+    --margana-footer-py: 0;
+  }
+
+  body.landscape-immersive .margana-proportions {
+    --margana-anagram-w-lg: calc(var(--margana-tile-w-lg) * 0.80);
+    --margana-anagram-h-lg: calc(var(--margana-tile-w-lg) * 0.90);
+    --margana-anagram-font-size: calc(var(--margana-tile-w-lg) * 0.40);
+    --margana-anagram-score-font-size: calc(var(--margana-tile-w-lg) * 0.20);
+  }
+}
+
+/* --- Media Query Overrides (Simplified - Only Master & Exceptions) --- */
+
+/* 1. Phones (up to 430px) */
+@media (max-width: 430px) {
+  :root {
+    --margana-master-unit: clamp(2.3rem, 12vw, 4.0rem);
+    --margana-footer-font-size: 0.6rem;
+    --margana-tile-w-xs-global: calc(var(--margana-master-unit) * 0.62);
+  }
+
+  .margana-proportions:not(.landing-card) {
+
+    --margana-grid-score-font-size: calc(var(--margana-tile-w-lg) * 0.25);
+
+    --margana-navbar-hamburger-size: calc(var(--margana-tile-w-lg) * 0.90);
+    --margana-navbar-hamburger-icon: calc(var(--margana-tile-w-lg) * 0.60);
+    --margana-top-btn-font-size: calc(var(--margana-tile-w-lg) * 0.30);
+
+    --margana-anagram-w-lg: calc(var(--margana-tile-w-lg) * 0.80);
+    --margana-anagram-h-lg: calc(var(--margana-tile-w-lg) * 0.90);
+
+    --margana-anagram-font-size: calc(var(--margana-tile-w-lg) * 0.40);
+    --margana-anagram-score-font-size: calc(var(--margana-tile-w-lg) * 0.22);
+
+    --margana-spinner-font-size: calc(var(--margana-tile-w-lg) * 0.7);
+
+    --margana-grid-gap: calc(var(--margana-tile-w-lg) * 0.1);
+
+    --margana-btn-py: calc(var(--margana-tile-w-lg) * 0.14);
+    --margana-btn-px: calc(var(--margana-tile-w-lg) * 0.28);
+    --margana-btn-font-size: calc(var(--margana-tile-w-lg) * 0.28);
+
+    --margana-anagram-mb: calc(var(--margana-tile-w-lg) * 0.35);
+  }
+
+  .yesterday-postgame-scope, .margana-postgame-view {
+    --margana-postgame-grid-tile-w: clamp(2.35rem, 10.125vw, 3.4rem);
+    --margana-postgame-grid-tile-h: calc(var(--margana-postgame-grid-tile-w) * 1.16);
+    --margana-postgame-grid-font-size: calc(var(--margana-postgame-grid-tile-w) * 0.45);
+    --margana-postgame-grid-score-font-size: calc(var(--margana-postgame-grid-tile-w) * 0.22);
+
+    --margana-postgame-anagram-w: calc(var(--margana-postgame-grid-tile-w) * 0.7);
+    --margana-postgame-anagram-h: calc(var(--margana-postgame-grid-tile-w) * 0.8);
+    --margana-postgame-anagram-font-size: calc(var(--margana-postgame-grid-tile-w) * 0.38);
+    --margana-postgame-anagram-score-font-size: calc(var(--margana-postgame-grid-tile-w) * 0.18);
+
+    --margana-postgame-valid-words-circle-size: calc(var(--margana-postgame-grid-tile-w) * 0.65);
+    --margana-postgame-valid-words-score-font-size: calc(var(--margana-postgame-valid-words-circle-size) * 0.45);
+    --margana-postgame-valid-words-font-size: 0.8rem;
+  }
+}
+
+/* 1.5 Small phones/phablets (431px - 540px) */
+@media (min-width: 431px) and (max-width: 640px) {
+  :root {
+    /* your overrides here, e.g. */
+    --margana-tile-w-xs-global: calc(var(--margana-master-unit) * 0.52);
+  }
+}
+
+/* 1.1 Small/Mid Desktop (640px+) */
+@media (min-width: 640px) {
+  :root {
+    --margana-footer-font-size: 0.8rem;
+  }
+}
+
+/* 3. Mid-sized Desktop & iPad (1024px - 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  :root {
+    /* Adjusted for standard iPad landscape (1024x768) */
+    --margana-master-unit: clamp(2.8rem, 7.5vh / 1.16, 3.9rem);
+    --margana-play-max: clamp(30rem, 65vw, 44rem);
+    --margana-grid-my: 0.25rem;
+    --margana-footer-font-size: 0.8rem;
+  }
+}
+
+/* 3.1 iPad Pro (Tall) */
+@media (min-width: 1024px) and (max-width: 1199px) and (min-height: 1100px) {
+  :root {
+    --margana-master-unit: clamp(3.8rem, 5.5vw, 3.9rem);
+  }
+}
+
+/* 4. Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  :root {
+    /* min(5.2vw, 7.5vh / 1.16) ensures smooth transition from the iPad/Mid-Desktop bucket (vh-based)
+       while also fixing overscaling on short laptop screens (e.g. 1366x768). */
+    --margana-master-unit: clamp(3.2rem, min(5.2vw, 7.5vh / 1.16), 3.9rem);
+    --margana-play-max: clamp(31.25rem, 65vw, 48rem);
+    --margana-footer-font-size: 0.8rem;
+  }
+}
+
+@layer components {
+  .margana-footer-text {
+    font-size: var(--margana-footer-font-size);
+  }
+
+  .margana-footer-inner {
+    padding-top: var(--margana-footer-py);
+    padding-bottom: var(--margana-footer-py);
+  }
+
+  .margana-chevron-badge {
+    width: var(--margana-chevron-badge);
+    height: var(--margana-chevron-badge);
+  }
+
+  /* Utility to hide scrollbars while keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari and Opera */
+  }
+}

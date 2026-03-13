@@ -1,0 +1,35 @@
+@layer components {
+  /* Spinner row height */
+  .margana-spinner-row {
+    height: var(--margana-spinner-h);
+  }
+
+  /* Spinner container min-height and alignment */
+  .margana-live-score {
+    min-height: var(--margana-live-score-min-h);
+    width: var(--margana-live-score-width, auto);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none; /* Ensure it doesn't block clicks to adjacent buttons */
+  }
+
+  /* Spinner text sizes */
+  .margana-spinner-text-tiny {
+    font-size: calc(var(--margana-tile-w-lg) * 0.25);
+    line-height: 1;
+  }
+  .margana-spinner-text-small {
+    font-size: calc(var(--margana-tile-w-lg) * 0.35);
+    line-height: 1;
+  }
+  .margana-spinner-text-medium {
+    font-size: calc(var(--margana-tile-w-lg) * 0.45);
+    line-height: 1;
+  }
+  .margana-spinner-text-large {
+    font-size: var(--margana-spinner-font-size);
+    line-height: 1;
+  }
+
+}

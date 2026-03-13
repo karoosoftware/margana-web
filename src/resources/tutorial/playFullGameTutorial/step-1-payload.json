@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "date": "2026-02-25",
+    "guest_id": "g_3f6p1dubln2ucr0ekan6e",
+    "rows": 5,
+    "cols": 5,
+    "wordLength": 5,
+    "columnIndex": 3,
+    "diagonalDirection": "main",
+    "verticalTargetWord": "sites",
+    "diagonalTargetWord": "aides",
+    "madnessAvailable": false,
+    "longestAnagramCount": 10,
+    "userAnagram": null,
+    "skippedRows": [],
+    "guestId": "g_3f6p1dubln2ucr0ekan6e"
+  },
+  "cells": [
+    {
+      "r": 0,
+      "c": 0,
+      "letter": "A",
+      "target": true,
+      "targetType": "diagonal"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "letter": "W",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "letter": "A",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 0,
+      "c": 3,
+      "letter": "S",
+      "target": true,
+      "targetType": "vertical"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "letter": "H",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "letter": "I",
+      "target": true,
+      "targetType": "diagonal"
+    },
+    {
+      "r": 1,
+      "c": 2,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "letter": "I",
+      "target": true,
+      "targetType": "vertical"
+    },
+    {
+      "r": 1,
+      "c": 4,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "letter": "D",
+      "target": true,
+      "targetType": "diagonal"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "letter": "T",
+      "target": true,
+      "targetType": "vertical"
+    },
+    {
+      "r": 2,
+      "c": 4,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "letter": "E",
+      "target": true,
+      "targetType": "vertical"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 4,
+      "c": 0,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "letter": "",
+      "target": false,
+      "targetType": null
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "letter": "S",
+      "target": true,
+      "targetType": "vertical"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "letter": "S",
+      "target": true,
+      "targetType": "diagonal"
+    }
+  ]
+}
