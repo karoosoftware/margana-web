@@ -56,7 +56,7 @@ onBeforeUnmount(() => {
         <div class="text-[12px] sm:text-[14px] opacity-90">
           <template v-if="!props.endOfGame">Create 8 connected letters in the <br> correct order to spell 'Margana'</template>
           <template v-else-if="props.madnessFound">Congratulations!</template>
-          <template v-else>Better luck next time!</template>
+          <template v-else>Better luck next time! Paul</template>
         </div>
       </div>
 
