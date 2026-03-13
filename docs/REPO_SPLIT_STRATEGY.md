@@ -4,6 +4,7 @@ This document outlines the proposed strategy for refactoring the current Margana
 
 ## Proposed Repositories
 
+
 ### 1. `margana-web` (Frontend)
 **Contents:**
 - `src/`: Vue source code, components, services, and assets.
@@ -258,6 +259,110 @@ To ensure a smooth transition without breaking the existing application, the mig
     -   Status (2026-03-13): implemented in `preprod`; `prod` intentionally deferred until the remaining monorepo refactoring is complete.
     -   Completed in `preprod`:
         -   `aws_lambda_function` resources now load handler code from the Build Artifacts bucket using `s3_bucket` / `s3_key`.
+ 
+### Phase 3: Frontend Build And Static Site Deployment
+**Goal:** Make `margana-web` build and deploy independently to the preprod static website stack managed by `margana-infra`.
+1.  **Phase 3.1: Define the frontend build contract**
+    -   Confirm the standalone frontend build inputs:
+        -   Node.js version from `package.json`
+        -   Vite environment values for `preprod`
+        -   build-time `margana-word-list.txt` in `build-assets/`
+    -   Remove remaining frontend imports that assume the monorepo layout.
+    -   Document temporary duplicated/shared config that still spans repos:
+        -   `badge-milestones.json`
+        -   `letter-scores-v3.json`
+    -   Status (2026-03-13): implemented in `margana-web`.
+    -   Completed in `preprod`:
+        -   `scripts/build-xor-filter.ts` reads `build-assets/margana-word-list.txt`
+        -   frontend-only docs added for env vars and build inputs
+        -   stale frontend imports from `python/` removed for badge milestones
+
+2.  **Phase 3.2: Add frontend CI build validation**
+    -   Add a GitHub Actions workflow in `margana-web`.
+    -   Authenticate to AWS via GitHub OIDC.
+    -   Download `margana-word-list.txt` from the Static Assets bucket.
+    -   Run:
+        -   `npm ci`
+        -   `npm run build:wordfilter`
+        -   `npm run build:preprod`
+    -   Upload `dist/` as a workflow artifact for inspection.
+    -   Status (2026-03-13): implemented and verified in `preprod`.
+    -   Current workflow behavior:
+        -   uses the GitHub `preprod` Environment
+        -   reads the canonical word list from `margana-static-assets-preprod`
+        -   produces a build artifact only; it does not yet publish to the website bucket
+
+3.  **Phase 3.3: Enable frontend deployment permissions in `margana-infra`**
+    -   Extend the GitHub OIDC/AWS setup so `karoosoftware/margana-web` can deploy the built frontend to preprod.
+    -   Current infra context in `envs/preprod`:
+        -   the static website bucket is created by `module "s3_static_website"` with bucket name `preprod.margana.co.uk`
+        -   CloudFront is created by `module "cloudfront_dist"` in front of that bucket
+        -   the existing GitHub Actions role currently named `margana-github-backend-preprod` already trusts `karoosoftware/margana-web`, but its attached policy only covers static asset reads and backend artifact writes
+    -   Required infra work:
+        -   decide whether to keep using the shared GitHub Actions role or create a dedicated frontend deploy role
+        -   grant the web workflow minimum required S3 permissions on the website bucket:
+            -   `s3:ListBucket`
+            -   `s3:GetBucketLocation`
+            -   `s3:PutObject`
+            -   `s3:DeleteObject`
+            -   `s3:AbortMultipartUpload`
+        -   grant minimum required CloudFront permissions for invalidation:
+            -   `cloudfront:CreateInvalidation`
+            -   read permissions if needed for validation/debugging
+        -   keep build-asset read access to `margana-static-assets-preprod`
+        -   expose or document the deploy target identifiers needed by CI:
+            -   website bucket name
+            -   CloudFront distribution ID
+    -   Recommended infra follow-up:
+        -   add Terraform outputs for the website bucket name and CloudFront distribution ID in `margana-infra/envs/preprod/output.tf`
+        -   document the intended GitHub Environment variables for `margana-web`
+
+4.  **Phase 3.4: Add deploy job in `margana-web`**
+    -   Extend the frontend workflow so deploy runs only after a successful preprod build.
+    -   Sync `dist/` to the preprod website bucket.
+    -   Remove files that are no longer present in the current build output.
+    -   Create a CloudFront invalidation after the upload completes.
+    -   Recommended implementation shape:
+        -   `aws s3 sync dist/ s3://preprod.margana.co.uk --delete`
+        -   `aws cloudfront create-invalidation --distribution-id <id> --paths "/*"`
+    -   Decide deploy trigger behavior:
+        -   automatic on `main` push, or
+        -   manual `workflow_dispatch`, or
+        -   build on pull requests and deploy only on `main`
+    -   Ensure the workflow fails clearly if bucket sync or invalidation fails.
+
+5.  **Phase 3.5: Align frontend CI configuration with infra outputs**
+    -   Configure the `preprod` GitHub Environment in `karoosoftware/margana-web` with the values required by both build and deploy.
+    -   Minimum expected variables after deploy is added:
+        -   `AWS_GITHUB_ACTIONS_ROLE_ARN`
+        -   `AWS_REGION`
+        -   `STATIC_ASSETS_BUCKET`
+        -   optional `STATIC_ASSETS_PREFIX`
+        -   optional `WORD_LIST_OBJECT_KEY`
+        -   `FRONTEND_BUCKET`
+        -   `CLOUDFRONT_DISTRIBUTION_ID`
+    -   Longer-term improvement:
+        -   reduce manual duplication between Terraform-managed resource IDs and committed `.env.preprod`
+        -   decide whether frontend env values should be generated from Terraform outputs, stored as GitHub Environment variables, or published as runtime config
+
+6.  **Phase 3.6: Validate the end-to-end preprod frontend deploy**
+    -   Confirm a clean GitHub Actions run can:
+        -   authenticate via OIDC
+        -   fetch `margana-word-list.txt`
+        -   build XOR filters
+        -   build the Vite preprod bundle
+        -   sync `dist/` to the website bucket with deletion enabled
+        -   invalidate CloudFront successfully
+    -   Confirm the deployed preprod site serves the expected new assets and does not retain stale files.
+    -   Confirm the preprod frontend still points at the intended preprod API, Cognito, and S3 resources.
+
+7.  **Phase 3.7: Post-split cleanup across repos**
+    -   Revisit shared configuration duplication after both frontend and backend are stable outside the monorepo.
+    -   Decide single ownership for:
+        -   `badge-milestones.json`
+        -   `letter-scores-v3.json`
+        -   any other build-fetched canonical assets that should move fully to S3-managed distribution
+    -   Remove now-obsolete monorepo assumptions from docs, CI, and committed env files.
         -   Terraform no longer packages Lambda handlers from local source in `margana-infra`.
         -   the three local internal layer builds were replaced with one shared S3-backed Lambda layer resource using `shared-python-deps-layer__<git-sha>.zip`.
         -   Lambda keys and `lambda_arns` output keys were normalized to the canonical backend artifact logical names.
