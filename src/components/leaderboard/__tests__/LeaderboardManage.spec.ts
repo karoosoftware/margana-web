@@ -3,6 +3,14 @@ import { mount, flushPromises, RouterLinkStub } from '@vue/test-utils'
 import LeaderboardManage from '../LeaderboardManage.vue'
 import { ref } from 'vue'
 
+// Mock useRouter
+const mockPush = vi.fn()
+vi.mock('vue-router', () => ({
+  useRouter: () => ({
+    push: mockPush
+  })
+}))
+
 // Mock useMarganaAuth
 vi.mock('@/composables/useMarganaAuth', () => ({
   useMarganaAuth: () => ({
@@ -40,13 +48,25 @@ describe('LeaderboardManage.vue', () => {
   })
 
   it('renders step 1 initially', () => {
-    const wrapper = mount(LeaderboardManage)
+    const wrapper = mount(LeaderboardManage, {
+      global: {
+        stubs: {
+          'router-link': true
+        }
+      }
+    })
     expect(wrapper.text()).toContain('Leaderboard name')
     expect(wrapper.find('input[type="text"]').exists()).toBe(true)
   })
 
   it('shows error for name too long', async () => {
-    const wrapper = mount(LeaderboardManage)
+    const wrapper = mount(LeaderboardManage, {
+      global: {
+        stubs: {
+          'router-link': true
+        }
+      }
+    })
     const input = wrapper.find('input[type="text"]')
     await input.setValue('a'.repeat(31))
     // The button text is "Verify" in Step 1
@@ -62,7 +82,13 @@ describe('LeaderboardManage.vue', () => {
     });
     global.fetch = vi.fn().mockReturnValue(fetchPromise);
 
-    const wrapper = mount(LeaderboardManage)
+    const wrapper = mount(LeaderboardManage, {
+      global: {
+        stubs: {
+          'router-link': true
+        }
+      }
+    })
     const input = wrapper.find('input[type="text"]')
     await input.setValue('valid_name')
     await wrapper.find('button').trigger('click')
@@ -84,7 +110,13 @@ describe('LeaderboardManage.vue', () => {
 
   it('moves to step 3 and allows adding members/admins', async () => {
     // For this one we can use the default mockResolvedValue from beforeEach
-    const wrapper = mount(LeaderboardManage)
+    const wrapper = mount(LeaderboardManage, {
+      global: {
+        stubs: {
+          'router-link': true
+        }
+      }
+    })
 
     // Step 1
     await wrapper.find('input[type="text"]').setValue('valid')
