@@ -6,6 +6,10 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   preprod-deploy:
     uses: ./.github/workflows/frontend-build-deploy.yml
