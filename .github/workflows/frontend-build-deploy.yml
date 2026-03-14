@@ -1,0 +1,141 @@
+name: Frontend Build And Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        required: true
+        type: string
+      node_version:
+        required: false
+        type: string
+        default: "22.12.0"
+      build_command:
+        required: true
+        type: string
+      artifact_name:
+        required: true
+        type: string
+      deploy_enabled:
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: frontend-${{ inputs.environment_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment_name }}
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      STATIC_ASSETS_BUCKET: ${{ vars.STATIC_ASSETS_BUCKET }}
+      STATIC_ASSETS_PREFIX: ${{ vars.STATIC_ASSETS_PREFIX }}
+      WORD_LIST_OBJECT_KEY: ${{ vars.WORD_LIST_OBJECT_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: npm
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Resolve word list key
+        id: asset-key
+        run: |
+          PREFIX="${STATIC_ASSETS_PREFIX:-}"
+          OBJECT_KEY="${WORD_LIST_OBJECT_KEY:-${PREFIX:+${PREFIX%/}/}margana-word-list.txt}"
+          if [ -z "$OBJECT_KEY" ]; then
+            echo "WORD_LIST_OBJECT_KEY could not be resolved" >&2
+            exit 1
+          fi
+          echo "object_key=$OBJECT_KEY" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch canonical word list
+        run: |
+          if [ -z "${STATIC_ASSETS_BUCKET}" ]; then
+            echo "STATIC_ASSETS_BUCKET is required" >&2
+            exit 1
+          fi
+          mkdir -p build-assets
+          aws s3 cp \
+            "s3://${STATIC_ASSETS_BUCKET}/${{ steps.asset-key.outputs.object_key }}" \
+            build-assets/margana-word-list.txt
+
+      - name: Verify fetched asset
+        run: |
+          test -s build-assets/margana-word-list.txt || {
+            echo "build-assets/margana-word-list.txt was not fetched correctly" >&2
+            exit 1
+          }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build XOR word filters
+        run: npm run build:wordfilter
+
+      - name: Build frontend
+        run: ${{ inputs.build_command }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment_name }}
+    needs: build
+    if: inputs.deploy_enabled
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      FRONTEND_WEBSITE_BUCKET: ${{ vars.FRONTEND_WEBSITE_BUCKET }}
+      FRONTEND_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.FRONTEND_CLOUDFRONT_DISTRIBUTION_ID }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: dist
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate deploy configuration
+        run: |
+          if [ -z "${FRONTEND_WEBSITE_BUCKET}" ]; then
+            echo "FRONTEND_WEBSITE_BUCKET is required" >&2
+            exit 1
+          fi
+          if [ -z "${FRONTEND_CLOUDFRONT_DISTRIBUTION_ID}" ]; then
+            echo "FRONTEND_CLOUDFRONT_DISTRIBUTION_ID is required" >&2
+            exit 1
+          fi
+
+      - name: Deploy dist to S3
+        run: aws s3 sync dist/ "s3://${FRONTEND_WEBSITE_BUCKET}" --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${FRONTEND_CLOUDFRONT_DISTRIBUTION_ID}" \
+            --paths "/*"
