@@ -256,9 +256,17 @@ To ensure a smooth transition without breaking the existing application, the mig
     -   The generated artifact locations are stable enough for infrastructure integration in Phase 2.3.
 3.  **Update `margana-infra`:** Modify `aws_lambda_function` resources to point to the Build Artifacts bucket instead of local files.
     -   **Phase 2.3: Switch Terraform to backend-published artifacts**
-    -   Status (2026-03-13): implemented in `preprod`; `prod` intentionally deferred until the remaining monorepo refactoring is complete.
+    -   Status (2026-03-14): implemented in both `preprod` and `prod`.
     -   Completed in `preprod`:
         -   `aws_lambda_function` resources now load handler code from the Build Artifacts bucket using `s3_bucket` / `s3_key`.
+    -   Completed in `prod`:
+        -   `aws_lambda_function` resources now load handler code from the Build Artifacts bucket using `s3_bucket` / `s3_key`.
+        -   the three local internal layer resources were replaced by one shared S3-backed Lambda layer resource
+        -   the `module.lambda[...]` state keys were reconciled to the canonical backend artifact logical names
+        -   legacy S3 notification resource addresses were reconciled without changing runtime behavior
+    -   Shared account-level IAM note:
+        -   the GitHub Actions OIDC provider for `token.actions.githubusercontent.com` is now owned by `envs/shared`
+        -   `envs/preprod` and `envs/prod` reference that provider via `aws_iam_openid_connect_provider` data sources rather than managing separate copies
  
 ### Phase 3: Frontend Build And Static Site Deployment
 **Goal:** Make `margana-web` build and deploy independently to the preprod static website stack managed by `margana-infra`.
@@ -290,16 +298,15 @@ To ensure a smooth transition without breaking the existing application, the mig
     -   Current workflow behavior:
         -   uses the GitHub `preprod` Environment
         -   reads the canonical word list from `margana-static-assets-preprod`
-        -   produces a build artifact only; it does not yet publish to the website bucket
+        -   publishes the built frontend to the preprod website bucket after a successful build
 
 3.  **Phase 3.3: Enable frontend deployment permissions in `margana-infra`**
     -   Extend the GitHub OIDC/AWS setup so `karoosoftware/margana-web` can deploy the built frontend to preprod.
     -   Current infra context in `envs/preprod`:
         -   the static website bucket is created by `module "s3_static_website"` with bucket name `preprod.margana.co.uk`
         -   CloudFront is created by `module "cloudfront_dist"` in front of that bucket
-        -   the existing GitHub Actions role currently named `margana-github-backend-preprod` already trusts `karoosoftware/margana-web`, but its attached policy only covers static asset reads and backend artifact writes
+        -   the website deploy now uses a dedicated GitHub Actions role, `margana-github-web-preprod`
     -   Required infra work:
-        -   decide whether to keep using the shared GitHub Actions role or create a dedicated frontend deploy role
         -   grant the web workflow minimum required S3 permissions on the website bucket:
             -   `s3:ListBucket`
             -   `s3:GetBucketLocation`
@@ -313,6 +320,13 @@ To ensure a smooth transition without breaking the existing application, the mig
         -   expose or document the deploy target identifiers needed by CI:
             -   website bucket name
             -   CloudFront distribution ID
+    -   Status (2026-03-13): implemented and verified in `preprod`.
+    -   Completed in `preprod`:
+        -   `karoosoftware/margana-web` now assumes a dedicated `margana-github-web-preprod` role via GitHub OIDC
+        -   the web role can read the canonical frontend build assets from `margana-static-assets-preprod`
+        -   the web role can sync to `preprod.margana.co.uk` with delete support
+        -   the web role can create CloudFront invalidations for the preprod frontend distribution
+        -   Terraform outputs expose the preprod website bucket and CloudFront distribution identifiers needed by CI
     -   Recommended infra follow-up:
         -   add Terraform outputs for the website bucket name and CloudFront distribution ID in `margana-infra/envs/preprod/output.tf`
         -   document the intended GitHub Environment variables for `margana-web`
@@ -355,8 +369,49 @@ To ensure a smooth transition without breaking the existing application, the mig
         -   invalidate CloudFront successfully
     -   Confirm the deployed preprod site serves the expected new assets and does not retain stale files.
     -   Confirm the preprod frontend still points at the intended preprod API, Cognito, and S3 resources.
+    -   Status (2026-03-13): implemented and verified in `preprod`.
 
-7.  **Phase 3.7: Post-split cleanup across repos**
+7.  **Phase 3.7: Production rollout plan for frontend deployment**
+    -   **Goal:** mirror the now-validated `preprod` frontend deployment model into `envs/prod` with a controlled cutover.
+    -   **Phase 3.7.1: Inventory the current production frontend hosting contract**
+        -   confirm the production static website bucket name managed by `module "s3_static_website"` in `envs/prod`
+        -   confirm the production CloudFront distribution managed by `module "cloudfront_dist"` in `envs/prod`
+        -   confirm the production DNS/Route53 alias target already points at that distribution
+        -   verify whether the existing production website bucket currently serves the live frontend without requiring a bucket replacement
+    -   **Phase 3.7.2: Add production GitHub OIDC role and permissions**
+        -   create a dedicated `margana-github-web-prod` role in `envs/prod`
+        -   trust only `karoosoftware/margana-web` using the GitHub `prod` Environment subject
+        -   grant read access to the production static assets bucket for build-time dependencies
+        -   grant deploy access to the production website bucket:
+            -   `s3:ListBucket`
+            -   `s3:GetBucketLocation`
+            -   `s3:PutObject`
+            -   `s3:DeleteObject`
+            -   `s3:AbortMultipartUpload`
+        -   grant `cloudfront:CreateInvalidation` on the production frontend distribution
+    -   **Phase 3.7.3: Expose production deploy identifiers**
+        -   add Terraform outputs in `envs/prod/output.tf` for:
+            -   frontend website bucket name
+            -   frontend CloudFront distribution ID
+            -   optional frontend CloudFront distribution ARN if helpful for debugging
+        -   confirm the `cloudfront-dist` module exports the distribution ID and ARN needed by both IAM and CI
+    -   **Phase 3.7.4: Prepare the `margana-web` production GitHub Environment**
+        -   configure the `prod` GitHub Environment in `karoosoftware/margana-web`
+        -   set the production role ARN, region, static assets bucket, website bucket, and CloudFront distribution ID
+        -   keep production deploy approval/manual gate behavior explicit until the first cutover is complete
+    -   **Phase 3.7.5: Validate a no-surprises production rollout plan**
+        -   run `terraform plan` in `envs/prod` and verify the change is limited to IAM, outputs, and any required module output wiring
+        -   confirm no production website bucket or CloudFront replacement is proposed
+        -   verify the production frontend build uses the intended API, Cognito, and asset endpoints before enabling automatic deploys
+        -   perform the first production deploy from `margana-web` with explicit observation of S3 sync and CloudFront invalidation
+    -   **Phase 3.7.6: Record the production cutover decision**
+        -   decide whether the first `prod` frontend deploy remains manual or becomes automatic on `main`
+        -   document rollback expectations:
+            -   redeploy the previous known-good frontend artifact if a bad release ships
+            -   invalidate CloudFront again after rollback if needed
+    -   Status (2026-03-14): backend production cutover is complete; frontend production deploy wiring remains the next rollout step.
+
+8.  **Phase 3.8: Post-split cleanup across repos**
     -   Revisit shared configuration duplication after both frontend and backend are stable outside the monorepo.
     -   Decide single ownership for:
         -   `badge-milestones.json`
@@ -367,12 +422,10 @@ To ensure a smooth transition without breaking the existing application, the mig
         -   the three local internal layer builds were replaced with one shared S3-backed Lambda layer resource using `shared-python-deps-layer__<git-sha>.zip`.
         -   Lambda keys and `lambda_arns` output keys were normalized to the canonical backend artifact logical names.
         -   dashboard query templates now resolve from `monitoring/logs_queries/`.
-    -   Outstanding for `prod` once the monorepo refactor is complete:
-        -   choose the backend artifact SHA to deploy and update `envs/prod/prod.auto.tfvars`,
-        -   run the `terraform state mv` sequence for the renamed `module.lambda[...]` keys in `envs/prod`,
-        -   run a `terraform plan` in `envs/prod` and verify all handler and shared-layer artifact keys exist in the Build Artifacts bucket,
-        -   apply the `prod` cutover to switch handlers and shared layer to S3-backed artifacts,
-        -   apply the follow-up cleanup to remove the obsolete local layer build resources from `prod` state.
+    -   Backend `prod` cutover status (2026-03-14):
+        -   complete
+        -   `prod` now consumes backend-published S3 artifacts and the shared S3-backed Lambda layer model
+        -   the remaining production split work is the frontend deploy rollout plus cross-repo cleanup/documentation
 4.  **Verification:** Deploy backend changes to `preprod` from the new repositories and verify functionality.
 
 ### Phase 3: Frontend Migration

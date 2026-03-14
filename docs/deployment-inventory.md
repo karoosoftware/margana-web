@@ -176,21 +176,17 @@ This naming scheme keeps artifacts:
 
 Current `margana-infra` status for these artifacts:
 
-- Status (2026-03-13): `preprod` is cut over to backend-published S3 artifacts.
+- Status (2026-03-14): both `preprod` and `prod` are cut over to backend-published S3 artifacts.
 - `envs/preprod` now deploys:
   - handler code from `backend/<environment>/<git-sha>/<logical-name>__<git-sha>.zip`,
   - one shared Lambda layer from `backend/<environment>/<git-sha>/shared-python-deps-layer__<git-sha>.zip`.
+- `envs/prod` now deploys:
+  - handler code from `backend/<environment>/<git-sha>/<logical-name>__<git-sha>.zip`,
+  - one shared Lambda layer from `backend/<environment>/<git-sha>/shared-python-deps-layer__<git-sha>.zip`.
 - `envs/preprod` no longer packages Lambda handlers or internal shared layers from local source.
+- `envs/prod` no longer packages Lambda handlers or internal shared layers from local source.
 - `lambda_arns` outputs in `margana-infra` are keyed by the canonical backend artifact logical names.
-- `prod` Terraform wiring has been prepared for the same model, but production cutover is intentionally deferred until the remaining monorepo split work is complete.
-
-Outstanding `prod` cutover work:
-
-- choose the backend artifact SHA to deploy,
-- update `envs/prod/prod.auto.tfvars`,
-- run the `terraform state mv` sequence for renamed `module.lambda[...]` keys,
-- verify all handler and shared-layer artifact keys exist in the Build Artifacts bucket,
-- apply the production cutover and follow-up cleanup.
+- both environments now use the canonical backend artifact logical names in Terraform state and outputs.
 
 ## Packaging Notes
 
