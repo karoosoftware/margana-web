@@ -169,6 +169,7 @@ const refresh = () => {
             v-if="availableOptions.length > 0 || selectedMyFilters.length > 0"
             @click="filterMenuOpen = !filterMenuOpen"
             class="flex items-center gap-2 px-3 py-1.5 text-indigo-200/80 hover:text-white transition-all text-xs font-bold tracking-wider"
+            aria-label="Filter"
           >
             <FunnelIcon class="w-5 h-5 sm:w-4 sm:h-4" />
             <ChevronDownIcon class="w-5 h-5 sm:w-4 sm:h-4 transition-transform" :class="{ 'rotate-180': filterMenuOpen }" />

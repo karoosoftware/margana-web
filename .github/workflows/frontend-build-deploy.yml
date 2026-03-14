@@ -89,11 +89,14 @@ jobs:
       - name: Build XOR word filters
         run: npm run build:wordfilter
 
+      - name: Run frontend tests
+        run: npm run test:run
+
       - name: Build frontend
         run: ${{ inputs.build_command }}
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.artifact_name }}
           path: dist

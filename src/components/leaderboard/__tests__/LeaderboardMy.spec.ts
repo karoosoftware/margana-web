@@ -53,14 +53,14 @@ describe('LeaderboardMy.vue', () => {
     mockFilteredMyLeaderboards.value = [{ id: '1', name: 'Board 1', role: 'member', is_public: true }]
     mockMyLeaderboards.value = mockFilteredMyLeaderboards.value
     const wrapper = mount(LeaderboardMy)
-    expect(wrapper.text()).toContain('Filter')
+    expect(wrapper.find('button[aria-label="Filter"]').exists()).toBe(true)
   })
 
   it('opens filter menu when clicked', async () => {
     mockFilteredMyLeaderboards.value = [{ id: '1', name: 'Board 1', role: 'member', is_public: true }]
     mockMyLeaderboards.value = mockFilteredMyLeaderboards.value
     const wrapper = mount(LeaderboardMy)
-    const filterBtn = wrapper.findAll('button').find(b => b.text().includes('Filter'))
+    const filterBtn = wrapper.find('button[aria-label="Filter"]')
     await filterBtn?.trigger('click')
     
     expect(wrapper.text()).toContain('Owner')
@@ -72,7 +72,7 @@ describe('LeaderboardMy.vue', () => {
     mockFilteredMyLeaderboards.value = [{ id: '1', name: 'Board 1', role: 'member', is_public: true }]
     mockMyLeaderboards.value = mockFilteredMyLeaderboards.value
     const wrapper = mount(LeaderboardMy)
-    const filterBtn = wrapper.findAll('button').find(b => b.text().includes('Filter'))
+    const filterBtn = wrapper.find('button[aria-label="Filter"]')
     await filterBtn?.trigger('click')
     
     // Find the Owner filter option in dropdown
@@ -119,7 +119,7 @@ describe('LeaderboardMy.vue', () => {
     mockSelectedMyFilters.value = ['admin']
     const wrapper = mount(LeaderboardMy)
     
-    const filterBtn = wrapper.findAll('button').find(b => b.text().includes('Filter'))
+    const filterBtn = wrapper.find('button[aria-label="Filter"]')
     await filterBtn?.trigger('click')
     
     const dropdown = wrapper.find('.animate-fade-in')
@@ -186,7 +186,7 @@ describe('LeaderboardMy.vue', () => {
     mockMyLeaderboards.value = mockFilteredMyLeaderboards.value
     const wrapper = mount(LeaderboardMy)
     
-    const boardNames = wrapper.findAll('.text-white.font-semibold.text-sm').map(el => el.text())
+    const boardNames = wrapper.findAll('.text-white.font-semibold').map(el => el.text())
     expect(boardNames[0]).toBe('Invited Board 2')
     expect(boardNames[1]).toBe('Invited Board 1')
     expect(boardNames[2]).toBe('Play Margana')

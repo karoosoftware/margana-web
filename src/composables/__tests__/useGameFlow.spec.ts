@@ -4,6 +4,9 @@ import { useMarganaGame } from '../useMarganaGame'
 import { useGameFlow } from '../useGameFlow'
 import * as liveScoringClient from '../../services/liveScoring/liveScoringClient'
 
+import { defineComponent } from 'vue'
+import { mount } from '@vue/test-utils'
+
 vi.mock('../../services/liveScoring/liveScoringClient')
 
 describe('useGameFlow - submit synchronization', () => {
@@ -52,9 +55,9 @@ describe('useGameFlow - submit synchronization', () => {
     landscapeMobileMode: ref(false),
     settingsEnableLiveScoring: ref(true),
     settingsEnableWildcardBypass: ref(false),
-    typingAgg: {},
-    highlightAgg: {},
-    shuffleAgg: {},
+    typingAgg: { flush: vi.fn() },
+    highlightAgg: { flush: vi.fn() },
+    shuffleAgg: { flush: vi.fn() },
     loadPuzzleState: vi.fn()
   }
 
@@ -62,7 +65,16 @@ describe('useGameFlow - submit synchronization', () => {
     const session = useMarganaGame(puzzle, gameOptions as any)
     session.score.value = 50 // Initial score from grid
 
-    const flow = useGameFlow(session, flowOptions as any)
+    // We need to run useGameFlow within a component context for onMounted/onBeforeUnmount
+    let flow: any
+    const TestComponent = defineComponent({
+      setup() {
+        flow = useGameFlow(session, flowOptions as any)
+        return () => null
+      }
+    })
+    
+    mount(TestComponent)
 
     const mockResponse = {
       mode: 'api',

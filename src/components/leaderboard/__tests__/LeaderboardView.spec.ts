@@ -87,7 +87,14 @@ describe('LeaderboardView.vue', () => {
 
   it('renders loading state', () => {
     mockLoadingDetail.value = true
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true
+        }
+      }
+    })
     expect(wrapper.find('.dots-loader').exists()).toBe(true)
   })
 
@@ -150,7 +157,15 @@ describe('LeaderboardView.vue', () => {
       user_labels: { 'sub1': 'Alice', 'sub2': 'Bob' }
     }
     
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true
+        }
+      }
+    })
     
     expect(wrapper.text()).toContain('Alpha Team')
     expect(wrapper.text()).toContain('Public')
@@ -167,7 +182,15 @@ describe('LeaderboardView.vue', () => {
       admin_subs: ['sub1'],
       user_labels: { 'sub1': 'Alice' }
     }
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true
+        }
+      }
+    })
     expect(wrapper.find('button[title="Rename leaderboard"]').exists()).toBe(true)
   })
 
@@ -182,7 +205,15 @@ describe('LeaderboardView.vue', () => {
       user_labels: { 'sub1': 'Alice', 'sub-123': 'Me' },
       admin_count: 1
     }
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true
+        }
+      }
+    })
     expect(wrapper.find('button[title="Leave leaderboard"]').exists()).toBe(true)
     expect(wrapper.find('button[title="Rename leaderboard"]').exists()).toBe(false)
   })
@@ -198,7 +229,15 @@ describe('LeaderboardView.vue', () => {
       user_labels: { 'user-123': 'Me' },
       admin_count: 1
     }
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true
+        }
+      }
+    })
     expect(wrapper.find('button[title="Delete leaderboard"]').exists()).toBe(true)
     expect(wrapper.find('button[title="Leave leaderboard"]').exists()).toBe(false)
   })
@@ -218,6 +257,8 @@ describe('LeaderboardView.vue', () => {
       props: { id: '123' },
       global: {
         stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true,
           ConfirmationModal: true
         }
       }
@@ -244,7 +285,15 @@ describe('LeaderboardView.vue', () => {
       admin_subs: ['sub1'],
       user_labels: { 'sub1': 'Alice' }
     }
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true
+        }
+      }
+    })
     expect(wrapper.find('button[title="Invite member"]').exists()).toBe(true)
   })
 
@@ -258,7 +307,15 @@ describe('LeaderboardView.vue', () => {
       admin_subs: ['sub1'],
       user_labels: { 'sub1': 'Alice' }
     }
-    const wrapper = mount(LeaderboardView, { props: { id: '123' } })
+    const wrapper = mount(LeaderboardView, { 
+      props: { id: '123' },
+      global: {
+        stubs: {
+          'router-link': true,
+          'LeaderboardScoreTable': true
+        }
+      }
+    })
     await wrapper.find('button[title="Invite member"]').trigger('click')
     expect(wrapper.find('input[placeholder="Enter email to invite"]').exists()).toBe(true)
   })
